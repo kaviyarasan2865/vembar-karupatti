@@ -14,7 +14,10 @@ const Navbar: React.FC = () => {
             {/* Logo Placeholder */}
             <img src={logo.src} alt="Logo" className="h-10 w-10 rounded-full" />
             <a href="#" className="text-white text-xl font-bold">
-              Logo
+              Vembar
+            </a>
+            <a href="#" className="text-[#42D400] text-xl font-bold">
+              Karupatti
             </a>
           </div>
 
@@ -22,27 +25,27 @@ const Navbar: React.FC = () => {
           <div className="hidden md:flex space-x-4">
             <a
               href="#"
-              className="text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+              className="text-white px-3 py-2 rounded-md text-xl font-medium hover:bg-[#b65014]"
             >
               Home
             </a>
             <a
               href="#"
-              className="text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+              className="text-white px-3 py-2 rounded-md text-xl font-medium hover:bg-[#b65014]"
             >
               About
             </a>
             <a
               href="#"
-              className="text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
-            >
-              Services
-            </a>
-            <a
-              href="#"
-              className="text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+              className="text-white px-3 py-2 rounded-md text-xl font-medium hover:bg-[#b65014]"
             >
               Contact
+            </a>
+            <a
+              href="/login"
+              className="text-white px-3 py-2 rounded-md text-xl font-medium hover:bg-[#b65014]"
+            >
+              Login
             </a>
           </div>
 
@@ -50,7 +53,7 @@ const Navbar: React.FC = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-white p-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white"
+              className="text-white p-2 rounded-md hover:bg-[#b65014] focus:outline-none focus:ring-2 focus:ring-white"
             >
               <svg
                 className="h-6 w-6"
@@ -73,30 +76,30 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-blue-600 space-y-2 px-4 py-3">
+        <div className="md:hidden bg-[#78350F] space-y-2 px-4 py-3">
           <a
             href="#"
-            className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+            className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014]"
           >
             Home
           </a>
           <a
             href="#"
-            className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+            className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014]"
           >
             About
           </a>
           <a
             href="#"
-            className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
-          >
-            Services
-          </a>
-          <a
-            href="#"
-            className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+            className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014]"
           >
             Contact
+          </a>
+          <a
+            href="/login"
+            className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014]"
+          >
+            Login
           </a>
         </div>
       )}
