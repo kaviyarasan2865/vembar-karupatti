@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const isAuthPage = ['/login', '/signup'].includes(pathname)
+  const isAuthPage = ['/login', '/signup','/landing'].includes(pathname)
   if (isAuthPage) {
     if (token) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
@@ -37,6 +37,7 @@ export const config = {
     '/dashboard/:path*',
     '/login',
     '/signup',
+    '/landing',
     '/((?!api|_next/static|_next/image|favicon.ico|images).*)',
   ]
 }
