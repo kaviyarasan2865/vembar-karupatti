@@ -4,8 +4,8 @@ import * as React from 'react'
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from 'next/navigation'
-// import logo from '@/public/assets/images/logo.png'
-import { LogOut, Settings,FolderKanban, User, X ,ListOrdered,ShoppingCart,TableOfContents} from 'lucide-react'
+import logo from '../../../public/assets/logo.png'
+import { LogOut, Settings,FolderKanban, User, X ,ListOrdered,ShoppingCart,TableOfContents,ChartBarStacked} from 'lucide-react'
 import { signOut } from "next-auth/react"
 
 export default function Sidebar({ 
@@ -35,6 +35,11 @@ export default function Sidebar({
       label: 'Dashboard'
     },
     {
+          href: '/admin/dashboard/categories',
+          icon: ChartBarStacked,
+          label: 'Categories'
+    },
+    {
       href: '/admin/dashboard/products',
       icon: ShoppingCart,
       label: 'Products'
@@ -60,7 +65,7 @@ export default function Sidebar({
         label: 'Settings'
         }
   ];
-
+ 
   return (
     <>
       {/* Mobile Overlay */}
@@ -80,14 +85,14 @@ export default function Sidebar({
       `}>
         <div className="flex h-[60px] items-center justify-between border-b border-[#999762] px-6">
           <Link href="/dashboard" className="flex items-center gap-2">
-            {/* <Image
+            <Image
               src={logo} 
               alt="CatMod AI Logo"
               width={40}
               height={40}
               className="rounded-full"
-            /> */}
-            <span className="text-xl font-bold text-amber-800">
+            />
+            <span className="text-lg font-bold text-amber-800">
               Vembar <span className="text-green-700">Karupatti</span>
             </span>
           </Link>
