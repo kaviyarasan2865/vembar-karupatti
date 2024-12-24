@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from 'next/navigation'
 import logo from '../../../public/assets/logo.png'
-import { LogOut, Settings,FolderKanban, User, X ,ListOrdered,ShoppingCart,TableOfContents,ChartBarStacked} from 'lucide-react'
+import { LogOut, Settings,FolderKanban, User, X ,ListOrdered,ShoppingCart,TableOfContents,ChartBarStacked,MessageSquareText} from 'lucide-react'
 import { signOut } from "next-auth/react"
 
 export default function Sidebar({ 
@@ -58,6 +58,11 @@ export default function Sidebar({
       href: '/admin/dashboard/cms',
       icon: TableOfContents,
       label: 'CMS'
+    },
+    {
+      href:'/admin/dashboard/feedback',
+      icon:MessageSquareText,
+      label:'Feedback'
     },
     {
         href: '/admin/dashboard/settings',
