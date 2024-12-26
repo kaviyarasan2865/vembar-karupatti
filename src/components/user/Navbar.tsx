@@ -13,7 +13,6 @@ const Navbar: React.FC = () => {
           {/* Logo Section */}
           <div className="flex items-center space-x-2">
             {/* Logo Placeholder */}
-            {/* <img src={logo.src} alt="Logo" className="h-10 w-10 rounded-full" /> */}
             <Image
               src={logo}
               alt="Logo"
@@ -33,25 +32,25 @@ const Navbar: React.FC = () => {
           <div className="hidden md:flex space-x-4">
             <a
               href="#"
-              className="text-white px-3 py-2 rounded-md text-xl font-medium hover:bg-[#b65014]"
+              className="text-white px-3 py-2 rounded-md text-base font-regular hover:bg-[#b65014]"
             >
               Home
             </a>
             <a
               href="#"
-              className="text-white px-3 py-2 rounded-md text-xl font-medium hover:bg-[#b65014]"
+              className="text-white px-3 py-2 rounded-md text-base font-regular hover:bg-[#b65014]"
             >
               About
             </a>
             <a
               href="#"
-              className="text-white px-3 py-2 rounded-md text-xl font-medium hover:bg-[#b65014]"
+              className="text-white px-3 py-2 rounded-md text-base font-regular hover:bg-[#b65014]"
             >
               Contact
             </a>
             <a
               href="/login"
-              className="text-white px-3 py-2 rounded-md text-xl font-medium hover:bg-[#b65014]"
+              className="text-white px-3 py-2 rounded-md text-base font-regular hover:bg-[#b65014]"
             >
               Login
             </a>
