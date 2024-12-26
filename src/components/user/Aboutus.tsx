@@ -5,7 +5,7 @@ import Image from 'next/image'
 const Aboutus = () => {
   return (
     <>
-    <section className="py-16 bg-[#FEF3C7]">
+    <section className="w-full mx-auto p-4 sm:p-6 lg:p-8 bg-[#FEF3C7]">
         <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="text-3xl font-bold mb-6">About Us</h2>
@@ -25,7 +25,7 @@ const Aboutus = () => {
               src={aboutus}
               alt="Our products"
               fill
-              className="object-cover rounded-3xl"
+              className="object-cover rounded-3xl "
             />
           </div>
         </div>
