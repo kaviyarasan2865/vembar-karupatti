@@ -387,7 +387,7 @@ const Page = () => {
               </thead>
               <tbody>
                 {products.map((product) => (
-                  <tr key={product.id} className="border-b last:border-b-0">
+                  <tr key={product._id} className="border-b last:border-b-0">
                     <td className="py-4 font-medium">{product.name}</td>
                     <td className="py-4">{product.description}</td>
                     <td className="py-4">
@@ -401,7 +401,7 @@ const Page = () => {
                       <button className="border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded-md transition-colors">
                         Edit
                       </button>
-                      <button  onClick={()=>handleDelete(product.id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition-colors">
+                      <button  onClick={()=>handleDelete(product._id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition-colors">
                         Delete
                       </button>
                     </td>
