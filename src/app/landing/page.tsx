@@ -1,4 +1,5 @@
 import Aboutus from '@/components/user/Aboutus'
+import Footer from '@/components/user/Footer'
 import Hero from '@/components/user/Hero'
 import Navbar from '@/components/user/Navbar'
 import Organic from '@/components/user/Organic'
@@ -15,6 +16,7 @@ const landing = () => {
     <Aboutus/>
     <Organic/>
     <Testimonial/>
+    <Footer/>
     </>
   )
 }
