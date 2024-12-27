@@ -1,10 +1,10 @@
-import connectDB  from '../lib/mongodb';
+import connectDB  from '@/lib/mongodb';
 import Admin from '../models/Admin';
 
 async function seedAdmin() {
   await connectDB();
 
-  const adminEmail = 'admin@example.com';
+  const adminEmail = 'kavikarpagam6@gmail.com';
   const adminPassword = 'password123';
 
   const existingAdmin = await Admin.findOne({ email: adminEmail });

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Sidebar from '@/components/admin/sidebar'
 import { Menu } from 'lucide-react'
 
