@@ -16,8 +16,7 @@ export async function middleware(request: NextRequest) {
   //   return NextResponse.next()
   // }
 
-
-  // const isAuthPage = ['/login', '/signup','/landing','/demo','/admin/dashboard'].includes(pathname)
+  // const isAuthPage = ['/login', '/signup'].includes(pathname)
   // if (isAuthPage) {
   //   if (token) {
   //     return NextResponse.redirect(new URL('/dashboard', request.url))

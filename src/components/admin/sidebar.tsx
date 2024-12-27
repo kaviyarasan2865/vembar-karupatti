@@ -60,9 +60,9 @@ export default function Sidebar({
       label: 'CMS'
     },
     {
-      href:'/admin/dashboard/feedback',
+      href:'/admin/dashboard/messages',
       icon:MessageSquareText,
-      label:'Feedback'
+      label:'Messages'
     },
     {
         href: '/admin/dashboard/settings',
@@ -89,7 +89,7 @@ export default function Sidebar({
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="flex h-[60px] items-center justify-between border-b border-[#999762] px-6">
-          <Link href="/dashboard" className="flex items-center gap-2">
+          <Link href="/admin/dashboard" className="flex items-center gap-2">
             <Image
               src={logo} 
               alt="CatMod AI Logo"
