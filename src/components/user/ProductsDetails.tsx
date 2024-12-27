@@ -36,7 +36,7 @@ const ProductsDetails = () => {
         <h2 className="text-3xl font-bold text-center mb-12">Our Products</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {products.map((product) => (
-            <div key={product.id} className="w-full relative h-[400px] overflow-hidden group mx-auto dark:bg-black bg-white dark:border-0 border rounded-md dark:text-white text-black flex flex-col">
+            <div key={product.id} className="w-full relative h-[300px] overflow-hidden group mx-auto dark:bg-black bg-white dark:border-0 border rounded-md dark:text-white text-black flex flex-col">
               <div className="w-full h-full">
                 <Image
                   src={product.image}
