@@ -75,8 +75,11 @@ export const POST = async (req: Request) => {
 export async function PUT(req: Request) {
   try {
     await connectDB();
-    const { id, name, description, category, units, image, image2, image3, isActive } = await req.json();
 
+    const formData = await req.formData();
+    const id = formData.get('id')?.toString();
+    
+    // Validate ID
     if (!id || !mongoose.isValidObjectId(id)) {
       return NextResponse.json(
         { error: "Invalid product ID" },
@@ -84,51 +87,66 @@ export async function PUT(req: Request) {
       );
     }
 
-    // Validate base64 images if they're being updated
-    if (image && !image.startsWith('data:image')) {
-      return NextResponse.json(
-        { error: "Invalid main image format. Must be base64" },
-        { status: 400 }
-      );
-    }
-
-    if (image2 && !image2.startsWith('data:image')) {
-      return NextResponse.json(
-        { error: "Invalid image2 format. Must be base64" },
-        { status: 400 }
-      );
-    }
-
-    if (image3 && !image3.startsWith('data:image')) {
-      return NextResponse.json(
-        { error: "Invalid image3 format. Must be base64" },
-        { status: 400 }
-      );
-    }
-
-    const product = await Product.findByIdAndUpdate(
-      id,
-      {
-        name,
-        description,
-        category,
-        units,
-        image,
-        image2,
-        image3,
-        isActive
-      },
-      { new: true, runValidators: true }
-    );
-
-    if (!product) {
+    // Get existing product
+    const existingProduct = await Product.findById(id);
+    if (!existingProduct) {
       return NextResponse.json(
         { error: "Product not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(product);
+    // Get form data
+    const name = formData.get('name')?.toString();
+    const description = formData.get('description')?.toString();
+    const category = formData.get('category')?.toString();
+    const isActive = formData.get('isActive') === 'true';
+    const units = JSON.parse(formData.get('units')?.toString() || '[]');
+    const image = formData.get('image');
+    const image2 = formData.get('image2');
+    const image3 = formData.get('image3');
+
+    // Process images - only convert if new image is provided
+    const processImage = async (file: File | null, existingImage: string | null) => {
+      if (file && file instanceof File) {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        return `data:${file.type};base64,${buffer.toString('base64')}`;
+      }
+      return existingImage; // Keep existing image if no new one provided
+    };
+
+    // Update product data
+    const updateData = {
+      name,
+      description,
+      category,
+      isActive,
+      units,
+      image: await processImage(image as File | null, existingProduct.image),
+      image2: await processImage(image2 as File | null, existingProduct.image2),
+      image3: await processImage(image3 as File | null, existingProduct.image3)
+    };
+
+    // Validate required fields
+    if (!updateData.name || !updateData.description || !updateData.category || updateData.units.length === 0) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Update the product
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    return NextResponse.json({
+      message: "Product updated successfully",
+      product: updatedProduct
+    });
+
   } catch (error) {
     console.error('Error updating product:', error);
     return NextResponse.json(

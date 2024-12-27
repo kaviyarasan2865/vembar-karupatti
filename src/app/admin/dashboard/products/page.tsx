@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 const Page = () => {
   const [categories, setCategories] = useState([]);
   const [formOpen, setFormOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const [products, setProducts] = useState([]);
   
-  // Updated form data structure to match new schema
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     name: '',
     description: '',
     image: null,
@@ -22,7 +22,9 @@ const Page = () => {
       price: 0,
       stock: 0
     }]
-  });
+  };
+  
+  const [formData, setFormData] = useState(initialFormData);
 
   const unitTypes = ["pieces", "kg", "grams", "liters", "units"];
 
@@ -94,11 +96,29 @@ const Page = () => {
     }
   };
 
+  const handleEdit = (product) => {
+    setEditMode(true);
+    setFormData({
+      id: product._id,
+      name: product.name,
+      description: product.description,
+      category: product.category,
+      units: product.units,
+      isActive: product.isActive,
+      image: null,
+      image2: null,
+      image3: null,
+      currentImage: product.image,
+      currentImage2: product.image2,
+      currentImage3: product.image3
+    });
+    setFormOpen(true);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
-      // Create FormData for file upload
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.name);
       formDataToSend.append('description', formData.description);
@@ -110,20 +130,27 @@ const Page = () => {
       if (formData.image2) formDataToSend.append('image2', formData.image2);
       if (formData.image3) formDataToSend.append('image3', formData.image3);
 
-      const response = await fetch('/api/admin/product', {
-        method: 'POST',
+      const url = '/api/admin/product';
+      const method = editMode ? 'PUT' : 'POST';
+      
+      if (editMode) {
+        formDataToSend.append('id', formData.id);
+      }
+
+      const response = await fetch(url, {
+        method,
         body: formDataToSend,
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to add product');
+        throw new Error(errorData.error || `Failed to ${editMode ? 'update' : 'add'} product`);
       }
 
       await fetchProducts();
-      setFormOpen(false);
+      handleCloseForm();
     } catch (error) {
-      console.error('Error adding product:', error);
+      console.error(`Error ${editMode ? 'updating' : 'adding'} product:`, error);
     }
   };
 
@@ -143,14 +170,20 @@ const Page = () => {
     }
   };
 
+  const handleCloseForm = () => {
+    setFormOpen(false);
+    setEditMode(false);
+    setFormData(initialFormData);
+  };
+
   const productForm = () => (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center overflow-y-auto p-4">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-3xl my-8">
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Add Product</h2>
+            <h2 className="text-xl font-bold">{editMode ? 'Edit Product' : 'Add Product'}</h2>
             <button
-              onClick={() => setFormOpen(false)}
+              onClick={handleCloseForm}
               className="text-gray-500 hover:text-gray-700"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -305,20 +338,34 @@ const Page = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Main Image *
+                  Main Image {!editMode && '*'}
                 </label>
+                {editMode && formData.currentImage && (
+                  <img
+                    src={formData.currentImage}
+                    alt="Current main image"
+                    className="w-20 h-20 object-cover rounded mb-2"
+                  />
+                )}
                 <input
                   type="file"
                   name="image"
                   onChange={handleInputChange}
                   accept="image/*"
-                  required
+                  required={!editMode}
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Image 2</label>
+                {editMode && formData.currentImage2 && (
+                  <img
+                    src={formData.currentImage2}
+                    alt="Current second image"
+                    className="w-20 h-20 object-cover rounded mb-2"
+                  />
+                )}
                 <input
                   type="file"
                   name="image2"
@@ -330,6 +377,13 @@ const Page = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Image 3</label>
+                {editMode && formData.currentImage3 && (
+                  <img
+                    src={formData.currentImage3}
+                    alt="Current third image"
+                    className="w-20 h-20 object-cover rounded mb-2"
+                  />
+                )}
                 <input
                   type="file"
                   name="image3"
@@ -343,7 +397,7 @@ const Page = () => {
             <div className="flex justify-end space-x-4">
               <button
                 type="button"
-                onClick={() => setFormOpen(false)}
+                onClick={handleCloseForm}
                 className="px-4 py-2 border rounded-md hover:bg-gray-50"
               >
                 Cancel
@@ -351,70 +405,91 @@ const Page = () => {
               <button
                 type="submit"
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors"
-              >
-                Add Product
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-
-  return (
-    <div>
-      <div className="p-8 max-w-6xl mx-auto space-y-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Products</h1>
-          <button
-            onClick={() => setFormOpen(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            Add Products
-          </button>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md">
-          <div className="p-6">
-            <table className="w-full">
-              <thead className="border-b">
-                <tr>
-                  <th className="text-left pb-4">Name</th>
-                  <th className="text-left pb-4">Description</th>
-                  <th className="text-left pb-4">Image</th>
-                  <th className="text-right pb-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr key={product._id} className="border-b last:border-b-0">
-                    <td className="py-4 font-medium">{product.name}</td>
-                    <td className="py-4">{product.description}</td>
-                    <td className="py-4">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-16 h-16 object-cover rounded"
-                      />
-                    </td>
-                    <td className="py-4 text-right space-x-2">
-                      <button className="border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded-md transition-colors">
-                        Edit
-                      </button>
-                      <button  onClick={()=>handleDelete(product._id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition-colors">
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                >
+                  {editMode ? 'Update Product' : 'Add Product'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
-      {formOpen && productForm()}
-    </div>
-  );
-};
-
-export default Page;
+    );
+  
+    return (
+      <div>
+        <div className="p-8 max-w-6xl mx-auto space-y-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold">Products</h1>
+            <button
+              onClick={() => {
+                setEditMode(false);
+                setFormData(initialFormData);
+                setFormOpen(true);
+              }}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              Add Products
+            </button>
+          </div>
+  
+          <div className="bg-white rounded-lg shadow-md">
+            <div className="p-6">
+              <table className="w-full">
+                <thead className="border-b">
+                  <tr>
+                    <th className="text-left pb-4">Name</th>
+                    <th className="text-left pb-4">Description</th>
+                    <th className="text-left pb-4">Category</th>
+                    <th className="text-left pb-4">Image</th>
+                    <th className="text-right pb-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map((product) => (
+                    <tr key={product._id} className="border-b last:border-b-0">
+                      <td className="py-4 font-medium">{product.name}</td>
+                      <td className="py-4 max-w-xs truncate">{product.description}</td>
+                      <td className="py-4">
+                        {categories.find(cat => cat.id === product.category)?.name || 'N/A'}
+                      </td>
+                      <td className="py-4">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      </td>
+                      <td className="py-4 text-right space-x-2">
+                        <button 
+                          onClick={() => handleEdit(product)}
+                          className="border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded-md transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button  
+                          onClick={() => handleDelete(product._id)}
+                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {products.length === 0 && (
+                    <tr>
+                      <td colSpan="5" className="py-8 text-center text-gray-500">
+                        No products found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        {formOpen && productForm()}
+      </div>
+    );
+  };
+  
+  export default Page;
