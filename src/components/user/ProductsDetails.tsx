@@ -1,9 +1,11 @@
+'use client'
 import React from 'react';
 import Image from 'next/image';
 import { ChevronsRight } from 'lucide-react';
 import sugar from '../../../public/assets/LightBrownSugar.png'  
 import karupetti from '../../../public/assets/karupetti.png'
 import brown from '../../../public/assets/brown.png'
+import  {useRouter} from 'next/navigation';
 
 const ProductsDetails = () => {
   const products = [
@@ -29,6 +31,7 @@ const ProductsDetails = () => {
       description: 'Natural raw sugar with minimal processing. Retains all the original flavor and nutrients of sugarcane.'
     }
   ];
+  const router = useRouter()
 
   return (
     <section className="py-16 bg-white">
@@ -55,7 +58,8 @@ const ProductsDetails = () => {
                   </p>
                   <div className="flex justify-between items-center">
                     <p className="text-white font-semibold">{product.price}</p>
-                    <button className="p-2 bg-black flex rounded-md text-white">
+                    <button onClick={() => router.push('./product-display')}
+                     className="p-2 bg-black flex rounded-md text-white">
                       View Details <ChevronsRight className="ml-1" />
                     </button>
                   </div>
