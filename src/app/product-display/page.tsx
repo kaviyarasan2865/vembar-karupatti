@@ -6,6 +6,7 @@ import sugar from '../../../public/assets/LightBrownSugar.png'
 import Brown from '../../../public/assets/Brown-Sugar.png'
 import Image from 'next/image'
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import ReviewSection from '@/components/user/ReviewSection'
   
 const Page = () => {
@@ -33,6 +34,8 @@ const Page = () => {
       setQuantity(value)
     }
   }
+  
+  const router = useRouter();
 
   return (
     <>
@@ -109,7 +112,8 @@ const Page = () => {
               <button className="px-6 py-2 border border-[#92400E] rounded-[24px] hover:bg-gray-50">
                 Add to Cart
               </button>
-              <button className="px-6 py-2 bg-yellow-400 border border-[#92400E] rounded-[24px] hover:bg-yellow-500">
+              <button onClick={() => router.push('/cart-page')} 
+              className="px-6 py-2 bg-yellow-400 border border-[#92400E] rounded-[24px] hover:bg-yellow-500">
                 Buy it now
               </button>
             </div>
