@@ -1,49 +1,29 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { ChevronsRight } from "lucide-react";
-import sugar from "../../../public/assets/LightBrownSugar.png";
-import karupetti from "../../../public/assets/karupetti.png";
-import brown from "../../../public/assets/brown.png";
 import { useRouter } from "next/navigation";
 
 const ProductsDetails = () => {
-  const products = [
-    {
-      id: 1,
-      name: "Light Brown Sugar",
-      image: sugar,
-      price: "$4.99",
-      description:
-        "Premium quality light brown sugar, perfect for baking and cooking. Adds a delicate molasses flavor to your recipes.",
-    },
-    {
-      id: 2,
-      name: "Dark Brown Sugar",
-      image: karupetti,
-      price: "$5.99",
-      description:
-        "Rich and flavorful dark brown sugar with a strong molasses content. Ideal for gingerbread and other bold recipes.",
-    },
-    {
-      id: 3,
-      name: "Raw Sugar",
-      image: brown,
-      price: "$6.99",
-      description:
-        "Natural raw sugar with minimal processing. Retains all the original flavor and nutrients of sugarcane.",
-    },
-    {
-      id: 4 ,
-      name: "Raw Sugar",
-      image: brown,
-      price: "$6.99",
-      description:
-        "Natural raw sugar with minimal processing. Retains all the original flavor and nutrients of sugarcane.",
-    },
-  ];
+  const [products, setProducts] = useState([]);
   const router = useRouter();
   const ITEMS_TO_SHOW = 3;
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("/api/[user]/products"); // Call the API endpoint
+        if (!response.ok) throw new Error("Failed to fetch products");
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const hasMoreProducts = products.length > ITEMS_TO_SHOW;
 
   return (
@@ -61,7 +41,7 @@ const ProductsDetails = () => {
                   src={product.image}
                   alt={product.name}
                   fill
-                  className=" scale-105 group-hover:scale-100 object-cover transition-all duration-300 rounded-md"
+                  className="scale-105 group-hover:scale-100 object-cover transition-all duration-300 rounded-md"
                   priority
                 />
               </div>
@@ -84,15 +64,6 @@ const ProductsDetails = () => {
                     </button>
                   </div>
                 </div>
-              </article>
-
-              <article className="p-2 w-full h-[20%] flex flex-col justify-end overflow-hidden absolute bottom-0 rounded-b-md bg-gradient-to-t from-[#F59E0B] opacity-100 group-hover:opacity-0 group-hover:-bottom-4 transition-all duration-300">
-                <h1 className="md:text-2xl font-semibold text-white">
-                  {product.name}
-                </h1>
-                <p className="sm:text-base text-sm text-white">
-                  {product.price}
-                </p>
               </article>
             </div>
           ))}

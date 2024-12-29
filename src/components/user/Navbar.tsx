@@ -20,10 +20,10 @@ const Navbar: React.FC = () => {
               height={40}
               className="rounded-full"
             />
-            <a href="/landing" className="text-white text-xl font-bold ">
+            <a href="/" className="text-white text-xl font-bold ">
               Vembar
             </a>
-            <a href="/landing" className="text-[#42D400] text-xl font-bold">
+            <a href="/" className="text-[#42D400] text-xl font-bold">
               Karupatti
             </a>
           </div>
@@ -53,6 +53,12 @@ const Navbar: React.FC = () => {
               className="text-white px-3 py-2 rounded-md text-base font-regular hover:bg-[#b65014]"
             >
               Login
+            </a>
+            <a
+              href="/signup"
+              className="text-white px-3 py-2 rounded-md text-base font-regular hover:bg-[#b65014]"
+            >
+             Register
             </a>
           </div>
 
