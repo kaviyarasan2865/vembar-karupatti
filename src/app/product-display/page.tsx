@@ -6,14 +6,36 @@ import sugar from '../../../public/assets/LightBrownSugar.png'
 import Brown from '../../../public/assets/Brown-Sugar.png'
 import Image from 'next/image'
 import React, { useState } from 'react'
-
+import { useRouter } from 'next/navigation'
+import ReviewSection from '@/components/user/ReviewSection'
+  
 const Page = () => {
-  const [mainImage, setMainImage] = useState(Brown)
-  const thumbnails = [sugar, brown, sugar]
+  const [mainImage, setMainImage] = useState(sugar)
+  const [quantity, setQuantity] = useState(1)
+  const thumbnails = [sugar, brown, Brown]
 
   const handleImageSwap = (newImage) => {
     setMainImage(newImage)
   }
+
+  const incrementQuantity = () => {
+    setQuantity(prev => prev + 1)
+  }
+
+  const decrementQuantity = () => {
+    setQuantity(prev => prev > 1 ? prev - 1 : 1)
+  }
+
+  const handleQuantityChange = (e) => {
+    const value = parseInt(e.target.value)
+    if (isNaN(value) || value < 1) {
+      setQuantity(1)
+    } else {
+      setQuantity(value)
+    }
+  }
+  
+  const router = useRouter();
 
   return (
     <>
@@ -23,27 +45,27 @@ const Page = () => {
         <div className="grid md:grid-cols-2 gap-8">
           {/* Product Images */}
           <div>
-            <div className="relative aspect-video mb-4 bg-gray-100">
+            <div className="relative w-full h-[350px]  mb-4 bg-gray-100">
               <Image
                 src={mainImage}
                 alt="Main product image"
-                className="object-fill rounded-lg cursor-pointer"
+                className="w-full h-full object-cover rounded-lg cursor-pointer"  
                 priority
               />
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="flex gap-3 ">
               {thumbnails.map((img, index) => (
                 <div 
                   key={index} 
-                  className="relative aspect-square bg-gray-100 cursor-pointer" 
+                  className="relative w-20 h-20 bg-gray-100 cursor-pointer" 
                   onClick={() => handleImageSwap(img)}
                 >
                   <Image
                     src={img}
                     alt={`Thumbnail ${index + 1}`}
-                    fill
-                    className="object-fill rounded-lg"
-                    sizes="80px"
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover rounded-lg"
                   />
                 </div>
               ))}
@@ -63,22 +85,35 @@ const Page = () => {
             <div className="mb-6">
               <label className="block text-sm mb-2">Quantity</label>
               <div className="flex items-center space-x-2">
-                <button className="w-8 h-8 bg-gray-200 rounded-md">-</button>
+                <button 
+                  className="w-8 h-8 bg-gray-200 rounded-md"
+                  onClick={decrementQuantity}
+                >
+                  -
+                </button>
                 <input
                   type="number"
-                  defaultValue={1}
+                  value={quantity}
+                  onChange={handleQuantityChange}
+                  min="1"
                   className="w-16 text-center border rounded-md"
                 />
-                <button className="w-8 h-8 bg-gray-200 rounded-md">+</button>
+                <button 
+                  className="w-8 h-8 bg-gray-200 rounded-md"
+                  onClick={incrementQuantity}
+                >
+                  +
+                </button>
               </div>
             </div>
 
             {/* Action Buttons */}
             <div className="flex space-x-4 mb-8">
-              <button className="px-6 py-2 border border-brown-800 rounded-md hover:bg-gray-50">
+              <button className="px-6 py-2 border border-[#92400E] rounded-[24px] hover:bg-gray-50">
                 Add to Cart
               </button>
-              <button className="px-6 py-2 bg-yellow-400 rounded-md hover:bg-yellow-500">
+              <button onClick={() => router.push('/cart-page')} 
+              className="px-6 py-2 bg-yellow-400 border border-[#92400E] rounded-[24px] hover:bg-yellow-500">
                 Buy it now
               </button>
             </div>
@@ -108,6 +143,8 @@ const Page = () => {
           </div>
         </div>
       </div>
+                 {/* Review Section */}
+                 <ReviewSection/>
       <Footer />
     </>
   )
