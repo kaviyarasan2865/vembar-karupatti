@@ -5,6 +5,10 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import Footer from '@/components/user/Footer'
+import Navbar from '@/components/user/Navbar'
+import signupImage from '../../../public/assets/signupImage.png'
+
 
 // Define the password validation types
 type PasswordCheck = {
@@ -48,10 +52,10 @@ const validatePassword = (password: string): PasswordValidation => {
   };
 };
 
-const OTPInput = ({ value, onChange, disabled }: { 
-  value: string; 
-  onChange: (value: string) => void; 
-  disabled?: boolean 
+const OTPInput = ({ value, onChange, disabled }: {
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean
 }) => {
   const inputRefs = Array(6).fill(0).map(() => React.useRef<HTMLInputElement>(null));
 
@@ -155,16 +159,16 @@ export default function Signup() {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email, 
+        body: JSON.stringify({
+          email,
           password,
           authProvider: 'local',
           isVerified: false
         }),
       })
-      
+
       const data = await res.json()
-      
+
       if (!res.ok) {
         throw new Error(data.error || 'Signup failed')
       }
@@ -262,7 +266,7 @@ export default function Signup() {
       if (result?.error) {
         throw new Error(result.error);
       }
-      
+
       // The actual provider linking will be handled in the OAuth callback API route
     } catch (error) {
       console.error('Google signup error:', error);
@@ -271,137 +275,145 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold">Create your account</h1>
+    <div>
+      <Navbar />
+      <div className='bg-amber-200 h-screen flex flex-row m-0 p-0'>
+        <div className='w-1/2 flex items-center justify-center bg-amber-200'>
+        <img src={signupImage.src} alt='signup' className='w-full h-full object-cover' />
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <input
-              type="password"
-              placeholder="Create Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <div className="mt-2 space-y-2 text-sm">
-              {passwordValidation.checks.map((check, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <span className={check.isValid ? "text-green-500" : "text-gray-400"}>
-                    {check.isValid ? "✓" : "○"}
-                  </span>
-                  <span className="text-gray-600">{check.message}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {error && (
-            <p className="text-red-500 text-sm text-center">{error}</p>
-          )}
-
-          <button
-            type="submit"
-            disabled={!isPasswordValid || !email}
-            className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Continue
-          </button>
-        </form>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">or</span>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          className="w-full py-2 border rounded-lg hover:bg-gray-50 flex items-center justify-center gap-2"
-        >
-          <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
-          Continue with Google
-        </button>
-
-        <p className="text-center text-gray-600">
-          Already have an account?{' '}
-          <Link href="/login" className="text-blue-600 hover:text-blue-700">
-            Login
-          </Link>
-        </p>
-      </div>
-
-      {showOtpModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-6">
+        <div className="w-1/2 flex items-center justify-center bg-amber-200">
+          <div className="w-full max-w-md space-y-8">
             <div className="text-center">
-              <h2 className="text-xl font-semibold">Verify Your Email</h2>
-              <p className="text-gray-600 text-sm mt-2">
-                We've sent a verification code to your email address
-              </p>
+              <h1 className="text-2xl font-semibold">Create your account</h1>
             </div>
 
-            <OTPInput
-              value={otp}
-              onChange={setOtp}
-              disabled={!isTimerRunning || isVerified}
-            />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-            <p className="text-sm text-center text-gray-600">
-              OTP sent to {email}
-            </p>
+              <div>
+                <input
+                  type="password"
+                  placeholder="Create Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <div className="mt-2 space-y-2 text-sm">
+                  {passwordValidation.checks.map((check, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <span className={check.isValid ? "text-green-500" : "text-gray-400"}>
+                        {check.isValid ? "✓" : "○"}
+                      </span>
+                      <span className="text-gray-600">{check.message}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-            {otpError && (
-              <p className={`text-sm text-center ${
-                otpMessageType === 'success' ? 'text-green-500' : 'text-red-500'
-              }`}>
-                {otpError}
-              </p>
-            )}
+              {error && (
+                <p className="text-red-500 text-sm text-center">{error}</p>
+              )}
 
-            <button
-              onClick={handleVerifyOTP}
-              disabled={!isTimerRunning || otp.length !== 6 || isVerified}
-              className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-            >
-              Verify OTP
-            </button>
+              <button
+                type="submit"
+                disabled={!isPasswordValid || !email}
+                className="w-full py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Continue
+              </button>
+            </form>
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
+                <div className="w-full border-t border-gray-400"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">or</span>
+                <span className="px-2 bg-amber-100 text-amber-800">or</span>
               </div>
             </div>
 
             <button
-              onClick={sendOTP}
-              disabled={isTimerRunning || isVerified}
-              className="w-full py-2 border rounded-lg hover:bg-gray-50 disabled:bg-gray-100"
+              type="button"
+              onClick={handleGoogleSignIn}
+              className="w-full py-2 border rounded-lg hover:bg-gray-50 flex items-center justify-center gap-2 bg-white"
             >
-              {timer > 0 ? `Resend OTP in ${timer}s` : 'Resend OTP'}
+              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+              Continue with Google
             </button>
+
+            <p className="text-center text-gray-600">
+              Already have an account?{' '}
+              <Link href="/login" className="text-blue-600 hover:text-blue-700">
+                Login
+              </Link>
+            </p>
           </div>
+
+          {showOtpModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-6">
+                <div className="text-center">
+                  <h2 className="text-xl font-semibold">Verify Your Email</h2>
+                  <p className="text-gray-600 text-sm mt-2">
+                    We've sent a verification code to your email address
+                  </p>
+                </div>
+
+                <OTPInput
+                  value={otp}
+                  onChange={setOtp}
+                  disabled={!isTimerRunning || isVerified}
+                />
+
+                <p className="text-sm text-center text-gray-600">
+                  OTP sent to {email}
+                </p>
+
+                {otpError && (
+                  <p className={`text-sm text-center ${otpMessageType === 'success' ? 'text-green-500' : 'text-red-500'
+                    }`}>
+                    {otpError}
+                  </p>
+                )}
+
+                <button
+                  onClick={handleVerifyOTP}
+                  disabled={!isTimerRunning || otp.length !== 6 || isVerified}
+                  className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                >
+                  Verify OTP
+                </button>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">or</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={sendOTP}
+                  disabled={isTimerRunning || isVerified}
+                  className="w-full py-2 border rounded-lg hover:bg-gray-50 disabled:bg-gray-100"
+                >
+                  {timer > 0 ? `Resend OTP in ${timer}s` : 'Resend OTP'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
+      <Footer />
     </div>
   )
 }
