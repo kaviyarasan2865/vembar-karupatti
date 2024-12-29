@@ -7,7 +7,7 @@ import Image from 'next/image'
 const Hero = () => {
   return (
     <>
-    <section className="relative h-[600px]">
+    <section className="relative h-[36rem]">
         <Image
           src={background}
           alt="Palm tree at sunset"

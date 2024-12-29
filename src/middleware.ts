@@ -16,20 +16,20 @@ export async function middleware(request: NextRequest) {
   //   return NextResponse.next()
   // }
 
-  const isAuthPage = ['/login', '/signup','/landing'].includes(pathname)
-  if (isAuthPage) {
-    if (token) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
-    return NextResponse.next()
-  }
-  // Protected routes
-  if (!token) {
-    const loginUrl = new URL('/', request.url)
-    return NextResponse.redirect(loginUrl)
-  }
+  // const isAuthPage = ['/login', '/signup','/landing'].includes(pathname)
+  // if (isAuthPage) {
+  //   if (token) {
+  //     return NextResponse.redirect(new URL('/dashboard', request.url))
+  //   }
+  //   return NextResponse.next()
+  // }
+  // // Protected routes
+  // if (!token) {
+  //   const loginUrl = new URL('/', request.url)
+  //   return NextResponse.redirect(loginUrl)
+  // }
   
-  return NextResponse.next();
+  // return NextResponse.next();
 }
 
 export const config = {
