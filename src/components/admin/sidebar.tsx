@@ -28,6 +28,23 @@ export default function Sidebar({
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/admin/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        window.location.href = '/admin/login';
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   const navItems = [
     {
       href: '/admin/dashboard',
@@ -134,7 +151,7 @@ export default function Sidebar({
         </nav>
         <div className="border-t border-[#2A2A2A] p-3">
           <button 
-            onClick={handleSignOut}
+            onClick={handleLogout}
             className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-amber-800 hover:bg-[#2A2A2A] hover:text-white"
           >
             <LogOut className="h-5 w-5 text-amber-800"/>
