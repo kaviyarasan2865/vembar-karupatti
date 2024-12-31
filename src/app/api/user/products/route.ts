@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb"; // Adjust the path as necessary
 import Product from "@/models/Product"; // Adjust the path as necessary
 
+
+connectDB();
+
 // GET all products
 export const GET = async () => {
   try {
-    await connectDB();
     const products = await Product.find(); // Fetch all products from the database
     return NextResponse.json(products, { status: 200 });
   } catch (error) {

@@ -8,6 +8,7 @@ import Navbar from '@/components/user/Navbar'
 import loginImage from '../../../public/assets/login1.png'
 import Footer from '@/components/user/Footer'
 
+
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -24,10 +25,10 @@ export default function Login() {
       setStatus('loading')
       const result = await signIn('google', {
         redirect: false,
-        callbackUrl: '/dashboard'
+        callbackUrl: '/'
       })
       if (result?.error) throw new Error('Google sign in failed')
-      if (result?.ok) router.push('/dashboard')
+      if (result?.ok) router.push('/')
     } catch (error) {
       setStatus('error')
       setError(error instanceof Error ? error.message : 'Failed to sign in with Google')
@@ -69,7 +70,7 @@ export default function Login() {
       if (!result?.ok) throw new Error('Invalid credentials')
 
       setStatus('success')
-      router.push('/dashboard')
+      router.push('/')
     } catch (error) {
       setStatus('error')
       setError(error instanceof Error ? error.message : 'Failed to login')

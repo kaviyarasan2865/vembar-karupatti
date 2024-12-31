@@ -9,17 +9,19 @@ const ProductsDetails = () => {
   const router = useRouter();
   const ITEMS_TO_SHOW = 3;
 
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch("/api/user/products"); // Call the API endpoint
+      if (!response.ok) throw new Error("Failed to fetch products");
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch("/api/[user]/products"); // Call the API endpoint
-        if (!response.ok) throw new Error("Failed to fetch products");
-        const data = await response.json();
-        setProducts(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
 
     fetchProducts();
   }, []);
