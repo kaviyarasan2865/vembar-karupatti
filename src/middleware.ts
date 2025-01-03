@@ -17,25 +17,26 @@ export async function middleware(request: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET
   });
 
-  if (pathname === '/') {
-    if (token) {
-      return NextResponse.redirect(new URL('/', request.url))
-    }
-    return NextResponse.next()
-  }
+  // if (pathname === '/') {
+  //   if (token) {
+  //     return NextResponse.redirect(new URL('/', request.url))
+  //   }
+  //   return NextResponse.next()
+  // }
 
-  const isAuthPage = ['/login', '/signup'].includes(pathname)
-  if (isAuthPage) {
-    if (token) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
-    return NextResponse.next()
-  }
+  // const isAuthPage = ['/login', '/signup'].includes(pathname)
+  // if (isAuthPage) {
+  //   if (token) {
+  //     return NextResponse.redirect(new URL('/dashboard', request.url))
+  //   }
+  //   return NextResponse.next()
+  // }
+  
   // Protected routes
-  if (!token) {
-    const loginUrl = new URL('/', request.url)
-    return NextResponse.redirect(loginUrl)
-  }
+  // if (!token) {
+  //   const loginUrl = new URL('/', request.url)
+  //   return NextResponse.redirect(loginUrl)
+  // }
   
   return NextResponse.next();
 }

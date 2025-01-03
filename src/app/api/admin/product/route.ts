@@ -4,7 +4,7 @@ import Product from "@/models/Product";
 import  connectDB  from "@/lib/mongodb";
 
 // GET all products
-export const GET = async () => {
+export const GET = async () => {  
     try {
       await connectDB();
       // Fetch all products from the database

@@ -2,6 +2,12 @@
 import React, { useState, useEffect } from 'react';
 
 const Page = () => {
+  
+  useEffect(() =>{
+    fetchCategories();
+    fetchProducts();  
+  },[]);
+  
   const [categories, setCategories] = useState([]);
   const [formOpen, setFormOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -50,10 +56,6 @@ const Page = () => {
     }
   };
 
-  useEffect(() => {
-    fetchCategories();
-    fetchProducts();  
-  }, []);
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;

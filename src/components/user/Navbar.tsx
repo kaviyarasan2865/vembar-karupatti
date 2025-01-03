@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import logo from "../../../public/assets/logo.png";
 import Image from "next/image";
+import Link from "next/link";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,46 +21,41 @@ const Navbar: React.FC = () => {
               height={40}
               className="rounded-full"
             />
-            <a href="/" className="text-white text-xl font-bold ">
+            <Link href="/" className="text-white text-xl font-bold ">
               Vembar
-            </a>
-            <a href="/" className="text-[#42D400] text-xl font-bold">
+            </Link>
+            <Link href="/" className="text-[#42D400] text-xl font-bold">
               Karupatti
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex space-x-4">
-            <a
+            <Link
               href="#"
               className="text-white px-3 py-2 rounded-md text-base font-regular hover:bg-[#b65014]"
             >
               Home
-            </a>
-            <a
+            </Link>
+            <Link
               href="#"
               className="text-white px-3 py-2 rounded-md text-base font-regular hover:bg-[#b65014]"
             >
-              About
-            </a>
-            <a
+             Products
+            </Link>
+            <Link
               href="#"
               className="text-white px-3 py-2 rounded-md text-base font-regular hover:bg-[#b65014]"
             >
-              Contact
-            </a>
-            <a
+             Cart
+            </Link>
+            <Link
               href="/login"
               className="text-white px-3 py-2 rounded-md text-base font-regular hover:bg-[#b65014]"
             >
               Login
-            </a>
-            <a
-              href="/signup"
-              className="text-white px-3 py-2 rounded-md text-base font-regular hover:bg-[#b65014]"
-            >
-             Register
-            </a>
+            </Link>
+           
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -90,30 +86,30 @@ const Navbar: React.FC = () => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-[#78350F] space-y-2 px-4 py-3">
-          <a
+          <Link
             href="#"
             className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014]"
           >
             Home
-          </a>
-          <a
+          </Link>
+          <Link
             href="#"
             className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014]"
           >
             About
-          </a>
-          <a
+          </Link>
+          <Link
             href="#"
             className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014]"
           >
             Contact
-          </a>
-          <a
+          </Link>
+          <Link
             href="/login"
             className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014]"
           >
             Login
-          </a>
+          </Link>
         </div>
       )}
     </nav>

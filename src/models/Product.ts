@@ -19,4 +19,10 @@ const productSchema = new mongoose.Schema({
   image3: { type: String },
 });
 
+// Add indexes for frequently queried fields
+productSchema.index({ name: 1 });
+productSchema.index({ category: 1 });
+productSchema.index({ isActive: 1 });
+productSchema.index({ 'units.price': 1 });
+
 export default mongoose.models.Product || mongoose.model('Product', productSchema);

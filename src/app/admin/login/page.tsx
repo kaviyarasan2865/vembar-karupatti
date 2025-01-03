@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Image from 'next/image';
 import adminLoginBg from '../../../../public/assets/adminLoginBg.jpg'
 
 export default function LoginPage() {
@@ -21,7 +22,7 @@ export default function LoginPage() {
   
       const data = await res.json();
       if (res.ok) {
-        setStep(2); // Move to OTP step
+        setStep(2);
       } else {
         alert(data.message);
       }
@@ -44,7 +45,6 @@ export default function LoginPage() {
   
       const data = await res.json();
       if (res.ok) {
-        // Redirect to admin dashboard or desired page
         window.location.href = '/admin/dashboard';
       } else {
         alert(data.message);
@@ -57,8 +57,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat bg-[url('/assets/adminLoginBg.jpg')]">
-      <div className="w-full max-w-md p-8 space-y-6 bg-[#00000083] backdrop-blur-sm rounded-2xl shadow-2xl text-white">
+    <div className="min-h-screen flex items-center justify-center relative">
+      {/* Background image container */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src={adminLoginBg}
+          alt="Login background"
+          fill
+          className="object-cover"
+          priority
+        />
+      </div>
+      
+      {/* Content */}
+      <div className="w-full max-w-md p-8 space-y-6 bg-black/50 backdrop-blur-sm rounded-2xl shadow-2xl text-white relative z-10">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-red-200 mb-2">
             {step === 1 ? 'Welcome Back' : 'Verify OTP'}
