@@ -1,40 +1,57 @@
 import mongoose from "mongoose";
 
-const cartSchema = new mongoose.Schema({
-  product: {
+const CartItemSchema = new mongoose.Schema({
+  productId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Product",
-    required: true
+    required: [true, 'Product ID is required'],
+    ref: 'Product'
+  },
+  name: {
+    type: String,
+    required: [true, 'Product name is required']
+  },
+  image: {
+    type: String,
+    required: [true, 'Product image is required']
+  },
+  unitIndex: {
+    type: Number,
+    required: [true, 'Unit index is required'],
+    min: 0
   },
   quantity: {
     type: Number,
-    required: true,
-    min: [1, "Quantity cannot be less than 1"],
-    validate: {
-      validator: Number.isInteger,
-      message: "Quantity must be a whole number"
-    }
+    required: [true, 'Quantity is required'],
+    min: 1
   },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-    index: true
-  },
-  totalPrice: {
+  price: {
     type: Number,
-    required: true,
-    min: [0, "Price cannot be negative"]
+    required: [true, 'Price is required'],
+    min: 0
+  },
+  stock: {
+    type: Number,
+    required: [true, 'Stock is required'],
+    min: 0
   }
-}, {
-  timestamps: true,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
 });
 
-// Add index for common queries
-cartSchema.index({ user: 1, product: 1 }, { unique: true });
+const CartSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: [true, 'User ID is required'],
+    ref: 'User'
+  },
+  items: [CartItemSchema],
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
 
-const Cart = mongoose.models.Cart || mongoose.model("Cart", cartSchema);
+// Add index for better query performance
+CartSchema.index({ userId: 1 });
+
+const Cart = mongoose.models.Cart || mongoose.model('Cart', CartSchema);
 
 export default Cart;

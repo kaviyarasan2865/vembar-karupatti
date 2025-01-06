@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { BookmarkIcon, ChevronDownIcon } from "lucide-react";
 import Navbar from "@/components/user/Navbar";
 import Footer from "@/components/user/Footer";
+import { useRouter } from "next/navigation";
 
 interface Unit {
   unit: string;
@@ -29,6 +30,7 @@ interface CartItem {
 }
 
 const ProductListings = () => {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,6 +91,10 @@ const ProductListings = () => {
     return Number((unit.price * quantity).toFixed(2));
   };
 
+  const handleProductClick = (productId: string) => {
+    router.push(`/product-display/${productId}`);
+  };
+
   if (isLoading) {
     return (
       <>
@@ -131,7 +137,8 @@ const ProductListings = () => {
             return (
               <div
                 key={product._id}
-                className="bg-white rounded-xl shadow-lg border border-amber-100 overflow-hidden hover:shadow-xl transition-all duration-300"
+                className="bg-white rounded-xl shadow-lg border border-amber-100 overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
+                onClick={() => handleProductClick(product._id)}
               >
                 <div className="relative aspect-[16/9] overflow-hidden group">
                   <img
