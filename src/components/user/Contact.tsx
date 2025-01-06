@@ -1,6 +1,26 @@
-import React from 'react';
+'use client'
+import React, {useState} from 'react';
+import toast from 'react-hot-toast';
 
 const ContactForm = () => {
+const [name,setName] = useState("");
+const [email,setEmail] = useState("");
+const [subject,setSubject] = useState("");
+const [message,setMessage] = useState("");
+
+const handleSubmit = async()=>{
+  const res = await fetch(`/api/user/contact`,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({name,email,subject,message})
+  });
+  if(!res.ok){
+    throw new Error("Failed to send message");
+  }
+  toast.success("Successfully sent message")
+}
   return (
     <div className="w-full mx-auto p-4 sm:p-6 lg:p-8">
       <h2 className="text-2xl font-semibold text-center text-gray-900 mb-8">Contact Us</h2>
@@ -9,7 +29,7 @@ const ContactForm = () => {
         {/* Form */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-100">
           <div className="p-6">
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="space-y-4">
                 <div>
                   <input
@@ -18,6 +38,8 @@ const ContactForm = () => {
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-md 
                     focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent 
                     transition-colors placeholder-gray-400"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
                 </div>
                 <div>
@@ -27,6 +49,8 @@ const ContactForm = () => {
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-md 
                     focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent 
                     transition-colors placeholder-gray-400"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
                 <div>
@@ -36,6 +60,8 @@ const ContactForm = () => {
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-md 
                     focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent 
                     transition-colors placeholder-gray-400"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
                   />
                 </div>
                 <div>
@@ -45,6 +71,8 @@ const ContactForm = () => {
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-md 
                     focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent 
                     resize-none transition-colors placeholder-gray-400"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                   />
                 </div>
               </div>

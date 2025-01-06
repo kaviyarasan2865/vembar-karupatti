@@ -48,7 +48,7 @@ const CartSchema = new mongoose.Schema({
     default: Date.now
   }
 });
-
+     
 // Add index for better query performance
 CartSchema.index({ userId: 1 });
 
