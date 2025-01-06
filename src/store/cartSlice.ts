@@ -65,6 +65,36 @@ export const addToCart = createAsyncThunk(
   }
 );
 
+// Add remove from cart action
+export const removeFromCart = createAsyncThunk(
+  'cart/removeItem',
+  async ({ productId, unitIndex }: { productId: string; unitIndex: number }, { rejectWithValue }) => {
+    try {
+      console.log("Dispatching removeFromCart with:", { productId, unitIndex });
+      const response = await fetch('/api/cart/remove', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ productId, unitIndex }),
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to remove item from cart');
+      }
+
+      const data = await response.json();
+      console.log("Removed item, updated cart items:", data);
+      return data;
+    } catch (error: any) {
+      console.error("Failed to remove item from cart:", error);
+      return rejectWithValue(error.message || 'Failed to remove item from cart');
+    }
+  }
+);
+
 const cartSlice = createSlice({
   name: 'cart',
   initialState,
@@ -97,6 +127,20 @@ const cartSlice = createSlice({
         toast.success('Item added to cart');
       })
       .addCase(addToCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        toast.error(action.payload as string);
+      })
+      // Add remove from cart reducers
+      .addCase(removeFromCart.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(removeFromCart.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload;
+        toast.success('Item removed from cart');
+      })
+      .addCase(removeFromCart.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         toast.error(action.payload as string);

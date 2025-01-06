@@ -5,7 +5,7 @@ import Footer from "@/components/user/Footer";
 import Navbar from "@/components/user/Navbar";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
-import { fetchCartItems } from "@/store/cartSlice";
+import { fetchCartItems, removeFromCart } from "@/store/cartSlice";
 import { useSession } from "next-auth/react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -44,24 +44,9 @@ export default function CartPage() {
     }
   };
 
-  const removeProduct = async (productId: string, unitIndex: number) => {
-    try {
-      const response = await fetch('/api/cart/remove', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ productId, unitIndex }),
-      });
-
-      if (!response.ok) throw new Error('Failed to remove item');
-      
-      // Refresh cart items after removal
-      dispatch(fetchCartItems());
-      toast.success('Item removed from cart');
-    } catch (error) {
-      toast.error('Failed to remove item');
-    }
+  const handleRemoveFromCart = async (productId: string, unitIndex: number) => {
+    console.log("Removing item from cart:", { productId, unitIndex });
+    dispatch(removeFromCart({ productId, unitIndex }));
   };
 
   const totalItems = items.reduce(
@@ -157,7 +142,7 @@ export default function CartPage() {
                     </button>
                   </div>
                   <button
-                    onClick={() => removeProduct(item.productId, item.unitIndex)}
+                    onClick={() => handleRemoveFromCart(item.productId, item.unitIndex)}
                     className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                   >
                     Remove
