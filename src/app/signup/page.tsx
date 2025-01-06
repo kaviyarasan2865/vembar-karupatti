@@ -246,7 +246,7 @@ export default function Signup() {
 
       setIsVerified(true)
       setShowOtpModal(false)
-      router.push('/dashboard')
+      router.push('/')
     } catch (error) {
       console.error('Verification Error:', error)
       setError(error instanceof Error ? error.message : 'Verification failed')
@@ -259,7 +259,7 @@ export default function Signup() {
   const handleGoogleSignIn = async () => {
     try {
       const result = await signIn('google', {
-        callbackUrl: '/dashboard',
+        callbackUrl: '/',
         redirect: true,
       });
 
