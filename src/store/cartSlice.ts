@@ -41,8 +41,18 @@ export const fetchCartItems = createAsyncThunk(
 // Add item to cart
 export const addToCart = createAsyncThunk(
   'cart/addItem',
-  async (item: Omit<CartItem, 'id'>, { rejectWithValue }) => {
+  async (item: Omit<CartItem, 'id'>, { getState, rejectWithValue }) => {
     try {
+      const state = getState() as { cart: CartState };
+      const existingItem = state.cart.items.find(
+        (cartItem) => cartItem.productId === item.productId && cartItem.unitIndex === item.unitIndex
+      );
+
+      if (existingItem) {
+        toast.error('Product already exists in the cart. Please visit the cart.');
+        return rejectWithValue('Product already exists in the cart');
+      }
+
       const response = await fetch('/api/cart', {
         method: 'POST',
         headers: {
@@ -128,8 +138,10 @@ const cartSlice = createSlice({
       })
       .addCase(addToCart.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-        toast.error(action.payload as string);
+        if (action.payload !== 'Product already exists in the cart') {
+          state.error = action.payload as string;
+          toast.error(action.payload as string);
+        }
       })
       // Add remove from cart reducers
       .addCase(removeFromCart.pending, (state) => {

@@ -1,9 +1,11 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
-import { BookmarkIcon, ChevronDownIcon } from "lucide-react";
+import { BookmarkIcon } from "lucide-react";
 import Navbar from "@/components/user/Navbar";
 import Footer from "@/components/user/Footer";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { addToCart } from "@/store/cartSlice";
 
 interface Unit {
   unit: string;
@@ -23,14 +25,9 @@ interface Product {
   image: string;
 }
 
-interface CartItem {
-  productId: string;
-  unitIndex: number;
-  quantity: number;
-}
-
 const ProductListings = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -95,6 +92,19 @@ const ProductListings = () => {
     router.push(`/product-display/${productId}`);
   };
 
+  const handleAddToCart = (product: Product, unitIndex: number, quantity: number) => {
+    const item = {
+      productId: product._id,
+      name: product.name,
+      image: product.image,
+      unitIndex,
+      quantity,
+      price: product.units[unitIndex].price,
+      stock: product.units[unitIndex].stock,
+    };
+    dispatch(addToCart(item));
+  };
+
   if (isLoading) {
     return (
       <>
@@ -138,9 +148,9 @@ const ProductListings = () => {
               <div
                 key={product._id}
                 className="bg-white rounded-xl shadow-lg border border-amber-100 overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
-                onClick={() => handleProductClick(product._id)}
               >
-                <div className="relative aspect-[16/9] overflow-hidden group">
+                <div className="relative aspect-[16/9] overflow-hidden group"
+                onClick={() => handleProductClick(product._id)}>
                   <img
                     src={product.image}
                     alt={product.name}
@@ -237,6 +247,7 @@ const ProductListings = () => {
                       <BookmarkIcon className="w-4 h-4 text-amber-600" />
                     </button>
                     <button 
+                      onClick={() => handleAddToCart(product, selectedUnitIndex, quantity)}
                       className="flex-1 bg-amber-600 text-white rounded-lg py-2 text-sm hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                       disabled={!currentUnit.stock}
                     >
@@ -252,6 +263,6 @@ const ProductListings = () => {
       <Footer />
     </div>
   );
-};  
+};
 
 export default ProductListings;

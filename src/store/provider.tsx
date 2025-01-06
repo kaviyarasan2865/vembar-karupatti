@@ -7,7 +7,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
       {children}
-      <Toaster position="top-center" />
+      <Toaster position="top-right" />
     </Provider>
   )
 }

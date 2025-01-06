@@ -27,26 +27,64 @@ export default function CartPage() {
 
   const updateQuantity = async (productId: string, unitIndex: number, newQuantity: number) => {
     try {
+      // Input validation
+      if (newQuantity < 1) {
+        toast.error('Quantity cannot be less than 1');
+        return;
+      }
+
+      const item = items.find(
+        (item) => item.productId === productId && item.unitIndex === unitIndex
+      );
+
+      if (!item) {
+        toast.error('Item not found');
+        return;
+      }
+
+      if (newQuantity > item.stock) {
+        toast.error('Cannot exceed available stock');
+        return;
+      }
+
+      // Calculate new amount based on quantity and item price
+      const newAmount = newQuantity * item.price;
+
       const response = await fetch('/api/cart/update', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ productId, unitIndex, quantity: newQuantity }),
+        body: JSON.stringify({ 
+          productId, 
+          unitIndex, 
+          quantity: newQuantity, 
+          amount: newAmount 
+        }),
       });
 
-      if (!response.ok) throw new Error('Failed to update quantity');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData?.error || 'Failed to update quantity');
+      }
       
-      // Refresh cart items after update
+      // Refresh cart items after successful update
       dispatch(fetchCartItems());
+      toast.success('Cart updated successfully');
     } catch (error) {
-      toast.error('Failed to update quantity');
+      console.error('Update quantity error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update quantity');
     }
   };
 
   const handleRemoveFromCart = async (productId: string, unitIndex: number) => {
-    console.log("Removing item from cart:", { productId, unitIndex });
-    dispatch(removeFromCart({ productId, unitIndex }));
+    try {
+      dispatch(removeFromCart({ productId, unitIndex }));
+      toast.success('Item removed from cart');
+    } catch (error) {
+      console.error('Remove from cart error:', error);
+      toast.error('Failed to remove item from cart');
+    }
   };
 
   const totalItems = items.reduce(
@@ -85,7 +123,7 @@ export default function CartPage() {
 
   return (
     <>
-      <Navbar />
+       <Navbar />
       <main className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-8">Shopping Cart</h1>
 
@@ -127,7 +165,7 @@ export default function CartPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => updateQuantity(item.productId, item.unitIndex, item.quantity - 1)}
-                      className="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-100"
+                      className="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={item.quantity <= 1}
                     >
                       -
@@ -135,7 +173,7 @@ export default function CartPage() {
                     <span className="w-8 text-center">{item.quantity}</span>
                     <button
                       onClick={() => updateQuantity(item.productId, item.unitIndex, item.quantity + 1)}
-                      className="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-100"
+                      className="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={item.quantity >= item.stock}
                     >
                       +
