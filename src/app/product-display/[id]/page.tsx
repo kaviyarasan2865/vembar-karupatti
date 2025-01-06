@@ -5,10 +5,8 @@ import Image from 'next/image'
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import ReviewSection from '@/components/user/ReviewSection'
-import { useDispatch } from 'react-redux';
-import { addToCart } from '@/store/cartSlice';
-import { useSession } from 'next-auth/react';
-import { toast } from 'react-hot-toast';
+import { useSession } from 'next-auth/react'
+import { toast } from 'react-hot-toast'
 
 interface Unit {
   unit: string;
@@ -38,7 +36,6 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const dispatch = useDispatch();
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -106,7 +103,38 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
       stock: currentUnit.stock,
     };
 
-    dispatch(addToCart(cartItem));
+    try {
+      // Check if the item is already in the cart
+      const cartResponse = await fetch('/api/cart');
+      if (!cartResponse.ok) throw new Error('Failed to fetch cart');
+      const cartData = await cartResponse.json();
+      const existingItem = cartData.find(
+        (item: any) => item.productId === cartItem.productId && item.unitIndex === cartItem.unitIndex
+      );
+
+      if (existingItem) {
+        toast.error('Product already exists in the cart. Please visit the cart.');
+        return;
+      }
+
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(cartItem),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to add item to cart');
+      }
+
+      toast.success('Item added to cart');
+    } catch (error) {
+      console.error('Add to cart error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to add item to cart');
+    }
   };
 
   if (isLoading) {
