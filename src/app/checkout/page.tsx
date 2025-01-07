@@ -1,7 +1,27 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Check, ChevronRight, CreditCard, MapPin, Truck } from 'lucide-react'
+import Navbar from "@/components/user/Navbar";
+import Footer from "@/components/user/Footer";
+
+interface CartItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  size: string;
+  color: string;
+  image: string;
+}
+
+interface OrderSummary {
+  items: CartItem[];
+  subtotal: number;
+  shipping: number;
+  tax: number;
+  total: number;
+}
 
 export default function CheckoutPage() {
   const [step, setStep] = useState<'delivery' | 'payment'>('delivery')
@@ -13,9 +33,16 @@ export default function CheckoutPage() {
     address: '',
     city: '',
     state: '',
-    pincode: '',
+    zipCode: '',
     paymentMethod: 'online'
   })
+  const [orderSummary, setOrderSummary] = useState<OrderSummary>({
+    items: [],
+    subtotal: 0,
+    shipping: 49, // Fixed shipping cost
+    tax: 0,
+    total: 0
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -35,8 +62,99 @@ export default function CheckoutPage() {
     }
   }
 
+  const fetchUserDetails = async () => {
+    try {
+      const response = await fetch('/api/user/details');
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Handle unauthorized - maybe redirect to login
+          return;
+        }
+        if (response.status === 404) {
+          // User exists but no details yet - leave form empty
+          return;
+        }
+        throw new Error('Failed to fetch user details');
+      }
+
+      const data = await response.json();
+      setFormData(prev => ({
+        ...prev,
+        firstName: data.firstName || '',
+        lastName: data.lastName || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        address: data.address || '',
+        city: data.city || '',
+        state: data.state || '',
+        zipCode: data.zipCode || ''
+      }));
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+      // Optionally show an error message to the user
+    }
+  };
+
+  const fetchCartItems = async () => {
+    try {
+      const response = await fetch('/api/cart');
+      if (!response.ok) throw new Error('Failed to fetch cart items');
+      const items = await response.json(); // This is now an array directly
+      
+      const subtotal = items.reduce((sum: number, item: CartItem) => 
+        sum + (item.price * item.quantity), 0);
+      const tax = Math.round(subtotal * 0.03); // 3% tax
+
+      setOrderSummary({
+        items, // Use the array directly
+        subtotal,
+        shipping: 49,
+        tax,
+        total: subtotal + 49 + tax
+      });
+    } catch (error) {
+      console.error('Error fetching cart items:', error);
+      // Set empty state on error
+      setOrderSummary({
+        items: [],
+        subtotal: 0,
+        shipping: 49,
+        tax: 0,
+        total: 49
+      });
+    }
+  };
+
+  const updateUserDetails = async () => {
+    try {
+      const response = await fetch('/api/user/details', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...formData,
+          zipcode: formData.zipCode
+        })
+      });
+      if (!response.ok) throw new Error("Failed to update user details");
+      console.log('User details updated successfully');
+    } catch (error) {
+      console.error('Error updating user details:', error);
+    }
+  }
+  
+  useEffect(()=>{
+    fetchUserDetails();
+    fetchCartItems();
+  },[]);
+
   return (
+    <div>
+      <Navbar />
     <div className="min-h-screen bg-gray-50">
+
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Left Column - Form */}
@@ -45,7 +163,7 @@ export default function CheckoutPage() {
               <h1 className="text-2xl font-semibold">Checkout</h1>
               <div className="flex items-center space-x-2">
                 <div className="flex items-center space-x-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white">
                     <MapPin className="h-3 w-3" />
                   </div>
                   <span className={step === 'delivery' ? "font-medium" : "text-gray-500"}>Delivery</span>
@@ -53,7 +171,7 @@ export default function CheckoutPage() {
                 <ChevronRight className="h-4 w-4 text-gray-400" />
                 <div className="flex items-center space-x-2">
                   <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
-                    step === 'payment' ? "bg-blue-600 text-white" : "border border-gray-200"
+                    step === 'payment' ? "bg-amber-600 text-white" : "border border-gray-200"
                   }`}>
                     <CreditCard className="h-3 w-3" />
                   </div>
@@ -80,7 +198,7 @@ export default function CheckoutPage() {
                             value={formData.firstName}
                             onChange={handleInputChange}
                             required
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                           />
                         </div>
                         <div>
@@ -94,7 +212,7 @@ export default function CheckoutPage() {
                             value={formData.lastName}
                             onChange={handleInputChange}
                             required
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                           />
                         </div>
                       </div>
@@ -110,7 +228,7 @@ export default function CheckoutPage() {
                           value={formData.email}
                           onChange={handleInputChange}
                           required
-                          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                         />
                       </div>
 
@@ -125,7 +243,7 @@ export default function CheckoutPage() {
                           value={formData.phone}
                           onChange={handleInputChange}
                           required
-                          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                         />
                       </div>
 
@@ -140,7 +258,7 @@ export default function CheckoutPage() {
                           value={formData.address}
                           onChange={handleInputChange}
                           required
-                          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                         />
                       </div>
 
@@ -156,7 +274,7 @@ export default function CheckoutPage() {
                             value={formData.city}
                             onChange={handleInputChange}
                             required
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                           />
                         </div>
                         <div>
@@ -169,28 +287,25 @@ export default function CheckoutPage() {
                             value={formData.state}
                             onChange={handleInputChange}
                             required
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            disabled
+                            className="mt-1 block hover:cursor-not-allowed w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                           >
-                            <option value="">Select state</option>
-                            <option value="KA">Karnataka</option>
                             <option value="TN">Tamil Nadu</option>
-                            <option value="KL">Kerala</option>
-                            <option value="MH">Maharashtra</option>
                           </select>
                         </div>
                         <div>
-                          <label htmlFor="pincode" className="block text-sm font-medium text-gray-700">
+                          <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
                             PIN code
                           </label>
                           <input
                             type="text"
-                            id="pincode"
-                            name="pincode"
-                            value={formData.pincode}
+                            id="zipCode"
+                            name="zipCode"
+                            value={formData.zipCode}
                             onChange={handleInputChange}
                             required
                             pattern="[0-9]{6}"
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                           />
                         </div>
                       </div>
@@ -207,7 +322,7 @@ export default function CheckoutPage() {
                           value="online"
                           checked={formData.paymentMethod === 'online'}
                           onChange={handleInputChange}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                          className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300"
                         />
                         <div className="flex flex-1 items-center justify-between">
                           <div className="flex items-center space-x-3">
@@ -228,7 +343,7 @@ export default function CheckoutPage() {
                           value="cod"
                           checked={formData.paymentMethod === 'cod'}
                           onChange={handleInputChange}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                          className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300"
                         />
                         <div className="flex items-center space-x-3">
                           <Truck className="h-5 w-5 text-gray-400" />
@@ -247,14 +362,14 @@ export default function CheckoutPage() {
                     <button
                       type="button"
                       onClick={() => setStep('delivery')}
-                      className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
                     >
                       Back to Delivery
                     </button>
                   )}
                   <button
                     type="submit"
-                    className="ml-auto rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="ml-auto rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
                   >
                     {step === 'delivery' ? (
                       <>
@@ -279,56 +394,39 @@ export default function CheckoutPage() {
               <div className="p-6">
                 <h2 className="text-xl font-semibold">Order Summary</h2>
                 <div className="mt-6 space-y-4">
-                  <div className="flex items-start space-x-4">
-                    <div className="relative h-16 w-16 overflow-hidden rounded-lg border">
-                      <img
-                        src="/placeholder.svg"
-                        alt="Product"
-                        className="object-cover"
-                        width={64}
-                        height={64}
-                      />
+                  {orderSummary.items.map((item) => (
+                    <div key={item.productId} className="flex items-start space-x-4">
+                      <div className="relative h-16 w-16 overflow-hidden rounded-lg border">
+                        <img
+                          src={item.image || "/placeholder.svg"}
+                          alt={item.name}
+                          className="object-cover"
+                          width={64}
+                          height={64}
+                        />
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <h3 className="font-medium">{item.name}</h3>
+                        <p className="text-sm">Qty: {item.quantity}</p>
+                      </div>
+                      <p className="font-medium">₹{item.price * item.quantity}</p>
                     </div>
-                    <div className="flex-1 space-y-1">
-                      <h3 className="font-medium">Cotton T-Shirt</h3>
-                      <p className="text-sm text-gray-500">Size: M, Color: Black</p>
-                      <p className="text-sm">Qty: 1</p>
-                    </div>
-                    <p className="font-medium">₹599</p>
-                  </div>
-
-                  <div className="flex items-start space-x-4">
-                    <div className="relative h-16 w-16 overflow-hidden rounded-lg border">
-                      <img
-                        src="/placeholder.svg"
-                        alt="Product"
-                        className="object-cover"
-                        width={64}
-                        height={64}
-                      />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <h3 className="font-medium">Denim Jeans</h3>
-                      <p className="text-sm text-gray-500">Size: 32, Color: Blue</p>
-                      <p className="text-sm">Qty: 1</p>
-                    </div>
-                    <p className="font-medium">₹1,299</p>
-                  </div>
+                  ))}
 
                   <div className="my-6 border-t border-gray-200" />
 
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <p className="text-gray-500">Subtotal</p>
-                      <p className="font-medium">₹1,898</p>
+                      <p className="font-medium">₹{orderSummary.subtotal}</p>
                     </div>
                     <div className="flex justify-between">
                       <p className="text-gray-500">Shipping</p>
-                      <p className="font-medium">₹49</p>
+                      <p className="font-medium">₹{orderSummary.shipping}</p>
                     </div>
                     <div className="flex justify-between">
                       <p className="text-gray-500">Tax</p>
-                      <p className="font-medium">₹53</p>
+                      <p className="font-medium">₹{orderSummary.tax}</p>
                     </div>
                   </div>
 
@@ -336,7 +434,7 @@ export default function CheckoutPage() {
 
                   <div className="flex justify-between">
                     <p className="text-lg font-semibold">Total</p>
-                    <p className="text-lg font-semibold">₹2,000</p>
+                    <p className="text-lg font-semibold">₹{orderSummary.total}</p>
                   </div>
                 </div>
               </div>
@@ -344,8 +442,8 @@ export default function CheckoutPage() {
 
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
               <div className="flex items-center space-x-4">
-                <div className="rounded-full bg-blue-50 p-3">
-                  <Truck className="h-6 w-6 text-blue-600" />
+                <div className="rounded-full bg-amber-50 p-3">
+                  <Truck className="h-6 w-6 text-amber-600" />
                 </div>
                 <div>
                   <p className="font-medium">Estimated Delivery</p>
@@ -356,6 +454,8 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+    </div>
+    <Footer/>
     </div>
   )
 }

@@ -40,7 +40,48 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     trim: true,
-  }
+  },
+  firstName: {
+    type:String},
+    lastName: {
+    type:String},
+    phone: {
+    type: String,
+    trim: true,
+    validate: {
+      validator: function(v: string) {
+        return /^\+[1-9]\d{1,14}$/.test(v);
+      },
+      message: props => `${props.value} is not a valid phone number.`
+    }
+  },
+  address: {
+    type: String,
+    trim: true,
+    required: [true, 'Please provide a valid address']
+    },
+    city:{
+      type: String,
+      trim: true,
+      required: [true, 'Please provide a valid city']
+    },
+    state: {
+      type: String,
+      trim: true,
+      required: [true, 'Please provide a valid state'],
+      default:"TN"
+    },
+    zipCode: {
+      type: String,
+      trim: true,
+      required: [true, 'Please provide a valid zip code'],
+      validate: {
+        validator: function(v: string) {
+          return /^\d{5}(?:[-\s]\d{4})?$/.test(v);
+        },
+        message: props => `${props.value} is not a valid zip code.`
+      }
+    }
 }, {
   timestamps: true
 });

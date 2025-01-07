@@ -18,6 +18,49 @@ const orderProductSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
+const orderAddressSchema = new mongoose.Schema({
+  firstName: {
+    type:String},
+    lastName: {
+    type:String},
+    phone: {
+    type: String,
+    trim: true,
+    validate: {
+      validator: function(v: string) {
+        return /^\+[1-9]\d{1,14}$/.test(v);
+      },
+      message: props => `${props.value} is not a valid phone number.`
+    }
+  },
+  address: {
+    type: String,
+    trim: true,
+    required: [true, 'Please provide a valid address']
+    },
+    city:{
+      type: String,
+      trim: true,
+      required: [true, 'Please provide a valid city']
+    },
+    state: {
+      type: String,
+      trim: true,
+      required: [true, 'Please provide a valid state'],
+      default:"TN"
+    },
+    zipCode: {
+      type: String,
+      trim: true,
+      required: [true, 'Please provide a valid zip code'],
+      validate: {
+        validator: function(v: string) {
+          return /^\d{5}(?:[-\s]\d{4})?$/.test(v);
+        },
+        message: props => `${props.value} is not a valid zip code.`
+      }
+    }
+});
 const orderSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -51,12 +94,14 @@ const orderSchema = new mongoose.Schema({
     default: "pending"
   },
   shippingAddress: {
-    type: String,
-    required: true
-  },
-  trackingNumber: {
-    type: String,
-    sparse: true
+    type: [orderAddressSchema],
+    required: true,
+    validate: {
+      validator: (obj: any) => {
+        return obj.firstName && obj.lastName && obj.phone && obj.address && obj.city && obj.state && obj.zipCode;
+      },
+      message: "Shipping address is required"
+    }
   }
 }, {
   timestamps: true,

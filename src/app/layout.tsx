@@ -18,7 +18,9 @@ export const metadata: Metadata = {
   title: "Vembar Karupatti",
   description: "Traditional Palm Jaggery Products",
   icons: {
-    icon: './favicon.ico',
+    icon: [
+      { url: '/favicon.ico', type: 'image/x-icon' },
+    ],
   },
 };
 
