@@ -195,7 +195,7 @@ const ProductListings = () => {
                   />
                   {currentUnit.discount > 0 && (
                     <div className="absolute top-2 left-2">
-                      <span className="bg-amber-600 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md">
+                      <span className="bg-green-600 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md">
                         {currentUnit.discount}% OFF
                       </span>
                     </div>

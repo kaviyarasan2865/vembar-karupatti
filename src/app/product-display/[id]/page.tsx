@@ -189,7 +189,7 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
                 }}
               />
               {currentUnit.discount > 0 && (
-                <div className="absolute top-4 left-4 bg-amber-600 text-white px-3 py-1 rounded-full text-sm">
+                <div className="absolute top-4 left-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm">
                   {currentUnit.discount}% OFF
                 </div>
               )}
