@@ -21,17 +21,18 @@ export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (session) {
+    if (status === 'loading') return;
+
+    if (status === 'authenticated' && session) {
       fetchCartItems();
     } else {
-      toast.error("Please login to view your cart");
-      router.push("/login");
+      setLoading(false); // Stop loading if not authenticated
     }
-  }, [session, router]);
+  }, [session, status]);
 
   const fetchCartItems = async () => {
     try {
@@ -178,14 +179,35 @@ const updateQuantity = async (productId: string, unitIndex: number, newQuantity:
 
   return (
     <>
-      <Navbar />
+<Navbar />
       <main className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-8">Shopping Cart</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {items.length === 0 ? (
+            {status === 'unauthenticated' ? (
+              <div className="text-center py-8 bg-white rounded-lg shadow-md">
+                <h2 className="text-xl font-semibold mb-3">Sign in Required</h2>
+                <p className="text-gray-600 mb-6">
+                  Please sign in to view your shopping cart. 
+                </p>
+                <div className="space-x-4">
+                  <button
+                    onClick={() => router.push('/login')}
+                    className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => router.push('/')}
+                    className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Return Home
+                  </button>
+                </div>
+              </div>
+            ) : items.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-gray-500">Your cart is empty</p>
                 <button
@@ -198,7 +220,7 @@ const updateQuantity = async (productId: string, unitIndex: number, newQuantity:
             ) : (
               items.map((item) => (
                 <div
-                  key={`${item.productId}-unit-${item.unitIndex}`} // Updated unique key
+                  key={`${item.productId}-unit-${item.unitIndex}`}
                   className="bg-white p-4 rounded-lg shadow flex items-center gap-4"
                 >
                   <Image
@@ -246,7 +268,7 @@ const updateQuantity = async (productId: string, unitIndex: number, newQuantity:
           </div>
 
           {/* Order Summary */}
-          {items.length > 0 && (
+          {status === 'authenticated' && items.length > 0 && (
             <div className="bg-white p-6 rounded-lg shadow h-fit">
               <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
               <div className="space-y-2 mb-4">
