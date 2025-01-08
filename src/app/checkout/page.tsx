@@ -16,6 +16,7 @@ interface CartItem {
   size: string;
   color: string;
   image: string;
+  unitIndex: number;
 }
 
 interface OrderSummary {
@@ -24,6 +25,7 @@ interface OrderSummary {
   shipping: number;
   tax: number;
   total: number;
+
 }
 
 interface RazorpayResponse {
@@ -513,8 +515,8 @@ export default function CheckoutPage() {
               <div className="p-6">
                 <h2 className="text-xl font-semibold">Order Summary</h2>
                 <div className="mt-6 space-y-4">
-                  {orderSummary.items.map((item) => (
-                    <div key={item.productId} className="flex items-start space-x-4">
+                  {orderSummary.items.map((item, index) => (
+                    <div key={`${item.productId}-${item.unitIndex}`} className="flex items-start space-x-4">
                       <div className="relative h-16 w-16 overflow-hidden rounded-lg border">
                         <img
                           src={item.image || "/placeholder.svg"}
