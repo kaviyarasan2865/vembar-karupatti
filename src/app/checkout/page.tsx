@@ -145,11 +145,38 @@ export default function CheckoutPage() {
     if (step === 'delivery') {
       setStep('payment');
     } else {
-      if (formData.paymentMethod === 'online') {
-        await initializeRazorpayPayment();
-      } else {
-        // Handle COD logic
-        console.log('Processing COD order:', formData);
+      try {
+        if (formData.paymentMethod === 'online') {
+          await initializeRazorpayPayment();
+        } else {
+          // Handle COD order
+          const response = await fetch('/api/orders/cod', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              orderData: {
+                items: orderSummary.items,
+                shippingAddress: formData,
+                subtotal: orderSummary.subtotal,
+                shipping: orderSummary.shipping,
+                tax: orderSummary.tax,
+                total: orderSummary.total
+              }
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to create COD order');
+          }
+
+          const result = await response.json();
+          router.push(`/order-success?orderId=${result.orderId}`);
+        }
+      } catch (error) {
+        console.error('Order creation failed:', error);
+        toast.error('Failed to create order. Please try again.');
       }
     }
   };

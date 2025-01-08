@@ -28,7 +28,16 @@ const orderSchema = new mongoose.Schema({
     zipCode: String
   },
   paymentDetails: {
-    method: String,
+    method: {
+      type: String,
+      enum: ['online', 'cod'],
+      required: true
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'paid', 'failed'],
+      default: 'pending'
+    },
     razorpay_order_id: String,
     razorpay_payment_id: String,
     razorpay_signature: String
