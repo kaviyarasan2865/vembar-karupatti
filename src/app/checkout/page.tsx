@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Check, ChevronRight, CreditCard, MapPin, Truck } from 'lucide-react'
 import Navbar from "@/components/user/Navbar";
 import Footer from "@/components/user/Footer";
+import { loadRazorpay } from '@/lib/razorpay'
 
 interface CartItem {
   productId: string;
@@ -21,6 +22,12 @@ interface OrderSummary {
   shipping: number;
   tax: number;
   total: number;
+}
+
+interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
 }
 
 export default function CheckoutPage() {
@@ -52,15 +59,80 @@ export default function CheckoutPage() {
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (step === 'delivery') {
-      setStep('payment')
-    } else {
-      // Handle form submission
-      console.log('Form submitted:', formData)
+  const initializeRazorpayPayment = async () => {
+    try {
+      // 1. Create order on your backend
+      const response = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: orderSummary.total,
+          currency: 'INR',
+        }),
+      });
+      
+      const order = await response.json();
+
+      // 2. Load Razorpay SDK
+      const razorpay = await loadRazorpay();
+
+      // 3. Initialize payment
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Your publishable key
+        amount: orderSummary.total * 100, // Amount in smallest currency unit
+        currency: 'INR',
+        name: 'Your Store Name',
+        description: 'Purchase Description',
+        order_id: order.id,
+        prefill: {
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          contact: formData.phone,
+        },
+        handler: async function (response: RazorpayResponse) {
+          // Verify payment on your backend
+          const verification = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+
+          if (verification.ok) {
+            // Payment successful - handle order completion
+            console.log('Payment successful');
+            // Redirect to success page or show success message
+          }
+        },
+      };
+
+      const paymentObject = new razorpay(options);
+      paymentObject.open();
+    } catch (error) {
+      console.error('Payment initialization failed:', error);
     }
-  }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (step === 'delivery') {
+      setStep('payment');
+    } else {
+      if (formData.paymentMethod === 'online') {
+        await initializeRazorpayPayment();
+      } else {
+        // Handle COD logic
+        console.log('Processing COD order:', formData);
+      }
+    }
+  };
 
   const fetchUserDetails = async () => {
     try {
@@ -395,10 +467,7 @@ export default function CheckoutPage() {
                 <h2 className="text-xl font-semibold">Order Summary</h2>
                 <div className="mt-6 space-y-4">
                   {orderSummary.items.map((item) => (
-                    <div 
-                      key={`${item.productId}-unit-${item.unitIndex}`} // Updated unique key
-                      className="flex items-start space-x-4"
-                    >
+                    <div key={item.productId} className="flex items-start space-x-4">
                       <div className="relative h-16 w-16 overflow-hidden rounded-lg border">
                         <img
                           src={item.image || "/placeholder.svg"}
