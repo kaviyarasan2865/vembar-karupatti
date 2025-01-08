@@ -1,11 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { BookmarkIcon } from "lucide-react";
+import { BookmarkIcon, ChevronDownIcon } from "lucide-react";
 import Navbar from "@/components/user/Navbar";
 import Footer from "@/components/user/Footer";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { addToCart } from "@/store/cartSlice";
+import { toast } from "react-hot-toast";
 
 interface Unit {
   unit: string;
@@ -27,7 +26,6 @@ interface Product {
 
 const ProductListings = () => {
   const router = useRouter();
-  const dispatch = useDispatch();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,16 +55,15 @@ const ProductListings = () => {
 
   useEffect(() => {
     const initialSelectedUnits = products.reduce((acc, product) => {
-      acc[product._id] = 0; // Default to first unit option
+      acc[product._id] = 0;
       return acc;
     }, {} as { [key: string]: number });
     setSelectedUnits(initialSelectedUnits);
   }, [products]);
 
   useEffect(() => {
-    // Initialize quantities along with selected units
     const initialQuantities = products.reduce((acc, product) => {
-      acc[product._id] = 1; // Default quantity to 1
+      acc[product._id] = 1;
       return acc;
     }, {} as { [key: string]: number });
     setQuantities(initialQuantities);
@@ -92,17 +89,57 @@ const ProductListings = () => {
     router.push(`/product-display/${productId}`);
   };
 
-  const handleAddToCart = (product: Product, unitIndex: number, quantity: number) => {
-    const item = {
-      productId: product._id,
-      name: product.name,
-      image: product.image,
-      unitIndex,
-      quantity,
-      price: product.units[unitIndex].price,
-      stock: product.units[unitIndex].stock,
-    };
-    dispatch(addToCart(item));
+  const handleAddToCart = async (product: Product, unitIndex: number, quantity: number) => {
+    try {
+      const selectedUnit = product.units[unitIndex];
+      const response = await fetch('/api/cart', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to fetch cart');
+      }
+
+      const cartItems = await response.json();
+      const existingItem = cartItems.find(
+        (item: any) => item.productId === product._id && item.unitIndex === unitIndex
+      );
+
+      if (existingItem) {
+        toast.error('Item already in cart');
+        return;
+      }
+
+      const addResponse = await fetch('/api/cart/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: product._id,
+          name: product.name,
+          image: product.image,
+          unitIndex: unitIndex,
+          quantity: quantity,
+          price: selectedUnit.price,
+          stock: selectedUnit.stock
+        }),
+      });
+
+      if (!addResponse.ok) {
+        const error = await addResponse.json();
+        throw new Error(error.error || 'Failed to add item to cart');
+      }
+
+      toast.success('Item added to cart successfully');
+    } catch (error) {
+      console.error('Add to cart error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to add item to cart');
+    }
   };
 
   if (isLoading) {
@@ -110,7 +147,7 @@ const ProductListings = () => {
       <>
         <Navbar />
         <div className="p-4 flex justify-center items-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500" />
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600" />
         </div>
         <Footer />
       </>
@@ -179,20 +216,23 @@ const ProductListings = () => {
                     <div className="grid grid-cols-2 gap-2">
                       <div className="relative">
                         {product.units.length > 1 ? (
-                          <select
-                            value={selectedUnits[product._id]}
-                            onChange={(e) => setSelectedUnits({
-                              ...selectedUnits,
-                              [product._id]: Number(e.target.value)
-                            })}
-                            className="w-full p-2 pl-3 text-sm border border-amber-200 rounded-lg appearance-none bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-200 transition-all text-gray-700"
-                          >
-                            {product.units.map((unit, index) => (
-                              <option key={index} value={index}>
-                                {unit.quantity} {unit.unit}
-                              </option>
-                            ))}
-                          </select>
+                          <>
+                            <select
+                              value={selectedUnits[product._id]}
+                              onChange={(e) => setSelectedUnits({
+                                ...selectedUnits,
+                                [product._id]: Number(e.target.value)
+                              })}
+                              className="w-full p-2 pl-3 pr-8 text-sm border border-amber-200 rounded-lg appearance-none bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-200 transition-all text-gray-700"
+                            >
+                              {product.units.map((unit, index) => (
+                                <option key={index} value={index}>
+                                  {unit.quantity} {unit.unit}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronDownIcon className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-600 pointer-events-none" />
+                          </>
                         ) : (
                           <div className="p-2 text-sm bg-amber-50/50 rounded-lg border border-amber-200">
                             {currentUnit.quantity} {currentUnit.unit}

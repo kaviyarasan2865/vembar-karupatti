@@ -3,14 +3,13 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/auth";
 import connectDB from "@/lib/mongodb";
 import Cart from "@/models/Cart";
+import Product from "@/models/Product"; // Add this import
 import mongoose from "mongoose";
 
 export async function PUT(request: NextRequest) {
   try {
-    // 1. Ensure database connection
     await connectDB();
 
-    // 2. Validate session
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -19,57 +18,73 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // 3. Parse and validate request body
     const body = await request.json();
-    const { productId, unitIndex, quantity, amount } = body;
+    const { productId, unitIndex, quantity } = body;
 
-    console.log("Received update request:", { productId, unitIndex, quantity, amount });
-
-    if (!productId || typeof unitIndex !== 'number' || typeof quantity !== 'number' || typeof amount !== 'number') {
-      console.log("Invalid request data:", body);
+    // Validate request data
+    if (!productId || typeof unitIndex !== 'number' || typeof quantity !== 'number') {
       return NextResponse.json(
         { error: "Invalid request data" },
         { status: 400 }
       );
     }
 
-    // 4. Validate productId format
-    if (!mongoose.Types.ObjectId.isValid(productId)) {
+    // Find the cart and populate product details
+    const cart = await Cart.findOne({ userId: session.user.id });
+    
+    if (!cart) {
       return NextResponse.json(
-        { error: "Invalid product ID format" },
-        { status: 400 }
-      );
-    }
-
-    // 5. Find and update cart using findOneAndUpdate
-    const updatedCart = await Cart.findOneAndUpdate(
-      { 
-        userId: session.user.id,
-        'items.productId': productId,
-        'items.unitIndex': unitIndex
-      },
-      {
-        $set: {
-          'items.$.quantity': quantity,
-          'items.$.amount': amount
-        }
-      },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedCart) {
-      console.log("Cart not found for user:", session.user.id);
-      return NextResponse.json(
-        { error: "Cart or item not found" },
+        { error: "Cart not found" },
         { status: 404 }
       );
     }
 
-    // 6. Return updated items
-    console.log("Cart updated successfully:", updatedCart.items);
+    // Find the item in the cart
+    const itemIndex = cart.items.findIndex(
+      item => 
+        item.productId.toString() === productId && 
+        item.unitIndex === unitIndex
+    );
+
+    if (itemIndex === -1) {
+      return NextResponse.json(
+        { error: "Item not found in cart" },
+        { status: 404 }
+      );
+    }
+
+    // Verify the product exists and has enough stock
+    const product = await Product.findById(productId);
+    if (!product || !product.units[unitIndex] || product.units[unitIndex].stock < quantity) {
+      return NextResponse.json(
+        { error: "Invalid product or insufficient stock" },
+        { status: 400 }
+      );
+    }
+
+    // Update the quantity
+    cart.items[itemIndex].quantity = quantity;
+
+    // Save the updated cart
+    await cart.save();
+
+    // Prepare the response with full item details
+    const cartItems = await Promise.all(cart.items.map(async (item) => {
+      const product = await Product.findById(item.productId);
+      return {
+        productId: item.productId.toString(),
+        unitIndex: item.unitIndex,
+        quantity: item.quantity,
+        name: product.name,
+        image: product.image,
+        price: product.units[item.unitIndex].price,
+        stock: product.units[item.unitIndex].stock
+      };
+    }));
+
     return NextResponse.json({
-      message: "Cart updated successfully",
-      items: updatedCart.items
+      message: "Quantity updated successfully",
+      items: cartItems
     }, { status: 200 });
 
   } catch (error) {

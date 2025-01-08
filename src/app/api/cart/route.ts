@@ -7,7 +7,6 @@ import Cart from "@/models/Cart";
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -17,7 +16,7 @@ export async function GET() {
 
     await connectDB();
     const cart = await Cart.findOne({ userId: session.user.id });
-    
+
     return NextResponse.json(cart?.items || [], { status: 200 });
   } catch (error) {
     console.error("GET cart error:", error);
@@ -31,7 +30,6 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -40,8 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     const item = await request.json();
-    
-    // Validate item data
+
     if (!item.productId || !item.name || typeof item.unitIndex !== 'number' || !item.quantity) {
       return NextResponse.json(
         { error: "Invalid item data" },
@@ -50,11 +47,9 @@ export async function POST(request: NextRequest) {
     }
 
     await connectDB();
-
     let cart = await Cart.findOne({ userId: session.user.id });
-    
+
     if (!cart) {
-      // Create new cart if it doesn't exist
       try {
         cart = await Cart.create({
           userId: session.user.id,
@@ -65,16 +60,13 @@ export async function POST(request: NextRequest) {
         throw new Error("Failed to create cart");
       }
     } else {
-      // Update existing cart
       const existingItemIndex = cart.items.findIndex(
-        (i: any) => i.productId === item.productId && i.unitIndex === item.unitIndex
+        (i) => i.productId === item.productId && i.unitIndex === item.unitIndex
       );
 
       if (existingItemIndex > -1) {
-        // Update quantity if item exists
         cart.items[existingItemIndex].quantity += item.quantity;
       } else {
-        // Add new item
         cart.items.push(item);
       }
 
@@ -87,11 +79,63 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(cart.items, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("POST cart error:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to add item to cart" },
+      { error: error.message || "Failed to add item to cart" },
       { status: 500 }
     );
   }
-}  
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { productId, unitIndex } = await request.json();
+
+    await connectDB();
+    const cart = await Cart.findOne({ userId: session.user.id });
+
+    if (!cart) {
+      return NextResponse.json(
+        { error: "Cart not found" },
+        { status: 404 }
+      );
+    }
+
+    const itemIndex = cart.items.findIndex(
+      (i) => i.productId === productId && i.unitIndex === unitIndex
+    );
+
+    if (itemIndex === -1) {
+      return NextResponse.json(
+        { error: "Item not found in cart" },
+        { status: 404 }
+      );
+    }
+
+    cart.items.splice(itemIndex, 1);
+
+    try {
+      await cart.save();
+    } catch (saveError) {
+      console.error("Cart save error:", saveError);
+      throw new Error("Failed to save cart");
+    }
+
+    return NextResponse.json(cart.items, { status: 200 });
+  } catch (error: any) {
+    console.error("DELETE cart error:", error);
+    return NextResponse.json(
+      { error: error.message || "Failed to remove item from cart" },
+      { status: 500 }
+    );
+  }
+}

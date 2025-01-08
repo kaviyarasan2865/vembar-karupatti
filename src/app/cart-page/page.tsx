@@ -1,89 +1,169 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Footer from "@/components/user/Footer";
 import Navbar from "@/components/user/Navbar";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/store/store";
-import { fetchCartItems, removeFromCart } from "@/store/cartSlice";
 import { useSession } from "next-auth/react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
+interface CartItem {
+  productId: string;
+  name: string;
+  image: string;
+  unitIndex: number;
+  quantity: number;
+  price: number;
+  stock: number;
+}
+
 export default function CartPage() {
-  const dispatch = useDispatch();
-  const router = useRouter();
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { data: session } = useSession();
-  const { items, loading, error } = useSelector((state: RootState) => state.cart);
+  const router = useRouter();
 
   useEffect(() => {
     if (session) {
-      dispatch(fetchCartItems());
+      fetchCartItems();
     } else {
       toast.error("Please login to view your cart");
       router.push("/login");
     }
-  }, [dispatch, session, router]);
+  }, [session, router]);
 
-  const updateQuantity = async (productId: string, unitIndex: number, newQuantity: number) => {
+  const fetchCartItems = async () => {
     try {
-      // Input validation
-      if (newQuantity < 1) {
-        toast.error('Quantity cannot be less than 1');
-        return;
-      }
+      const response = await fetch('/api/cart');
+      if (!response.ok) throw new Error('Failed to fetch cart');
+      const data = await response.json();
+      setItems(data);
+    } catch (error: any) {
+      setError(error.message || 'Failed to fetch cart items');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      const item = items.find(
-        (item) => item.productId === productId && item.unitIndex === unitIndex
-      );
+  const addToCart = async (productId: string, unitIndex: number, quantity: number = 1) => {
+  try {
+    const response = await fetch('/api/cart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        productId,
+        unitIndex,
+        quantity
+      }),
+    });
 
-      if (!item) {
-        toast.error('Item not found');
-        return;
-      }
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData?.error || 'Failed to add item to cart');
+    }
 
-      if (newQuantity > item.stock) {
-        toast.error('Cannot exceed available stock');
-        return;
-      }
+    await fetchCartItems(); // Refresh the cart items
+    toast.success('Item added to cart');
+  } catch (error: any) {
+    console.error('Add to cart error:', error);
+    toast.error(error.message || 'Failed to add item to cart');
+  }
+};
 
-      // Calculate new amount based on quantity and item price
-      const newAmount = newQuantity * item.price;
+const updateQuantity = async (productId: string, unitIndex: number, newQuantity: number) => {
+  try {
+    if (newQuantity < 1) {
+      toast.error('Quantity cannot be less than 1');
+      return;
+    }
 
-      const response = await fetch('/api/cart/update', {
-        method: 'PUT',
+    const itemToUpdate = items.find(
+      item => item.productId === productId && item.unitIndex === unitIndex
+    );
+
+    if (!itemToUpdate) {
+      toast.error('Item not found');
+      return;
+    }
+
+    if (newQuantity > itemToUpdate.stock) {
+      toast.error('Cannot exceed available stock');
+      return;
+    }
+
+    // Update local state optimistically
+    setItems(prevItems => 
+      prevItems.map(item => 
+        item.productId === productId && item.unitIndex === unitIndex
+          ? { ...item, quantity: newQuantity }
+          : item
+      )
+    );
+
+    const response = await fetch('/api/cart/update', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        productId,
+        unitIndex,
+        quantity: newQuantity
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Revert the local state if the API call fails
+      await fetchCartItems();
+      throw new Error(data.error || 'Failed to update quantity');
+    }
+
+    // Verify the response has the expected data structure
+    if (Array.isArray(data.items)) {
+      setItems(data.items);
+      toast.success('Quantity updated successfully');
+    } else {
+      throw new Error('Invalid response format from server');
+    }
+  } catch (error: any) {
+    console.error('Update quantity error:', error);
+    toast.error(error.message || 'Failed to update quantity');
+    // Refresh cart items to ensure consistency
+    await fetchCartItems();
+  }
+};
+
+  const handleRemoveFromCart = async (productId: string, unitIndex: number) => {
+    try {
+      const response = await fetch('/api/cart/remove', {
+        method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ 
-          productId, 
-          unitIndex, 
-          quantity: newQuantity, 
-          amount: newAmount 
-        }),
+        body: JSON.stringify({ productId, unitIndex }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData?.error || 'Failed to update quantity');
+        throw new Error(errorData.error || 'Failed to remove item from cart');
       }
-      
-      // Refresh cart items after successful update
-      dispatch(fetchCartItems());
-      toast.success('Cart updated successfully');
-    } catch (error) {
-      console.error('Update quantity error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to update quantity');
-    }
-  };
 
-  const handleRemoveFromCart = async (productId: string, unitIndex: number) => {
-    try {
-      dispatch(removeFromCart({ productId, unitIndex }));
-      toast.success('Item removed from cart');
-    } catch (error) {
+      // Update local state immediately
+      setItems(prevItems => 
+        prevItems.filter(item => 
+          !(item.productId === productId && item.unitIndex === unitIndex)
+        )
+      );
+
+      toast.success('Item removed from cart successfully');
+    } catch (error: any) {
       console.error('Remove from cart error:', error);
-      toast.error('Failed to remove item from cart');
+      toast.error(error.message || 'Failed to remove item from cart');
     }
   };
 
@@ -123,7 +203,7 @@ export default function CartPage() {
 
   return (
     <>
-       <Navbar />
+      <Navbar />
       <main className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-8">Shopping Cart</h1>
 
@@ -143,7 +223,7 @@ export default function CartPage() {
             ) : (
               items.map((item) => (
                 <div
-                  key={`${item.productId}-${item.unitIndex}`}
+                  key={`${item.productId}-${item.unitIndex}`} // Ensure unique keys
                   className="bg-white p-4 rounded-lg shadow flex items-center gap-4"
                 >
                   <Image
