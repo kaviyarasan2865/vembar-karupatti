@@ -36,6 +36,10 @@ const ProductsDetails = () => {
 
   const hasMoreProducts = products.length > ITEMS_TO_SHOW;
 
+  const handleProductClick = (productId: string) => {
+    router.push(`/product-display/${productId}`);
+  };
+
   return (
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -92,7 +96,7 @@ const ProductsDetails = () => {
               {/* Overlay Content - Visible on Hover */}
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg flex items-center justify-center">
                 <button
-                  onClick={() => router.push("./product-display")}
+                  onClick={() => handleProductClick(product._id)}
                   className="px-6 py-3 bg-[#F59E0B] text-white rounded-md hover:bg-[#D97706] transition-colors flex items-center gap-2"
                 >
                   View Details <ChevronsRight className="w-5 h-5" />
