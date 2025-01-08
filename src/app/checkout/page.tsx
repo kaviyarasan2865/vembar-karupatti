@@ -5,6 +5,8 @@ import { Check, ChevronRight, CreditCard, MapPin, Truck } from 'lucide-react'
 import Navbar from "@/components/user/Navbar";
 import Footer from "@/components/user/Footer";
 import { loadRazorpay } from '@/lib/razorpay'
+import { useRouter } from 'next/navigation'
+import { toast } from 'react-hot-toast'
 
 interface CartItem {
   productId: string;
@@ -50,6 +52,7 @@ export default function CheckoutPage() {
     tax: 0,
     total: 0
   });
+  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -80,8 +83,8 @@ export default function CheckoutPage() {
 
       // 3. Initialize payment
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Your publishable key
-        amount: orderSummary.total * 100, // Amount in smallest currency unit
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: orderSummary.total * 100,
         currency: 'INR',
         name: 'Your Store Name',
         description: 'Purchase Description',
@@ -92,23 +95,39 @@ export default function CheckoutPage() {
           contact: formData.phone,
         },
         handler: async function (response: RazorpayResponse) {
-          // Verify payment on your backend
-          const verification = await fetch('/api/verify-payment', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_signature: response.razorpay_signature,
-            }),
-          });
+          try {
+            // Verify payment and create order
+            const verification = await fetch('/api/verify-payment', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                orderData: {
+                  items: orderSummary.items,
+                  shippingAddress: formData,
+                  subtotal: orderSummary.subtotal,
+                  shipping: orderSummary.shipping,
+                  tax: orderSummary.tax,
+                  total: orderSummary.total
+                }
+              }),
+            });
 
-          if (verification.ok) {
-            // Payment successful - handle order completion
-            console.log('Payment successful');
-            // Redirect to success page or show success message
+            if (!verification.ok) {
+              throw new Error('Payment verification failed');
+            }
+
+            const result = await verification.json();
+            
+            // Redirect to success page
+            router.push(`/order-success?orderId=${result.orderId}`);
+          } catch (error) {
+            console.error('Payment verification failed:', error);
+            toast.error('Payment verification failed. Please contact support.');
           }
         },
       };
@@ -117,6 +136,7 @@ export default function CheckoutPage() {
       paymentObject.open();
     } catch (error) {
       console.error('Payment initialization failed:', error);
+      toast.error('Payment initialization failed. Please try again.');
     }
   };
 
