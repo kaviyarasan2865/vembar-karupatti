@@ -46,32 +46,7 @@ export default function CartPage() {
     }
   };
 
-  const addToCart = async (productId: string, unitIndex: number, quantity: number = 1) => {
-  try {
-    const response = await fetch('/api/cart', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        productId,
-        unitIndex,
-        quantity
-      }),
-    });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData?.error || 'Failed to add item to cart');
-    }
-
-    await fetchCartItems(); // Refresh the cart items
-    toast.success('Item added to cart');
-  } catch (error: any) {
-    console.error('Add to cart error:', error);
-    toast.error(error.message || 'Failed to add item to cart');
-  }
-};
 
 const updateQuantity = async (productId: string, unitIndex: number, newQuantity: number) => {
   try {
@@ -223,7 +198,7 @@ const updateQuantity = async (productId: string, unitIndex: number, newQuantity:
             ) : (
               items.map((item) => (
                 <div
-                  key={`${item.productId}-${item.unitIndex}`} // Ensure unique keys
+                  key={`${item.productId}-unit-${item.unitIndex}`} // Updated unique key
                   className="bg-white p-4 rounded-lg shadow flex items-center gap-4"
                 >
                   <Image

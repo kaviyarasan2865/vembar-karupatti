@@ -60,6 +60,18 @@ export async function POST(request: NextRequest) {
         throw new Error("Failed to create cart");
       }
     } else {
+      // Check if item with same productId and unitIndex already exists
+      const existingItem = cart.items.find(
+        i => i.productId.toString() === item.productId && i.unitIndex === item.unitIndex
+      );
+
+      if (existingItem) {
+        return NextResponse.json(
+          { error: "Item already exists in cart" },
+          { status: 400 }
+        );
+      }
+
       const existingItemIndex = cart.items.findIndex(
         (i) => i.productId === item.productId && i.unitIndex === item.unitIndex
       );

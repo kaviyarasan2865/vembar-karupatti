@@ -395,7 +395,10 @@ export default function CheckoutPage() {
                 <h2 className="text-xl font-semibold">Order Summary</h2>
                 <div className="mt-6 space-y-4">
                   {orderSummary.items.map((item) => (
-                    <div key={item.productId} className="flex items-start space-x-4">
+                    <div 
+                      key={`${item.productId}-unit-${item.unitIndex}`} // Updated unique key
+                      className="flex items-start space-x-4"
+                    >
                       <div className="relative h-16 w-16 overflow-hidden rounded-lg border">
                         <img
                           src={item.image || "/placeholder.svg"}
