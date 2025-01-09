@@ -1,6 +1,42 @@
-import React from 'react';
+import React,{useState} from 'react';
+import { toast } from 'react-hot-toast';
 
 const Footer = () => {
+  const [email,setEmail] = useState("");
+
+  const handleSubmit = async(e) => {
+    e.preventDefault();
+    
+    // Basic email validation
+    if (!email || !email.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success(data.message);
+        setEmail("");
+      } else {
+        // Display the specific error message from the server
+        toast.error(data.error || "Failed to subscribe");
+      }
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.");
+    }
+  }
+  
+
   return (
     <>
       {/* Top Info Bar */}
@@ -99,14 +135,12 @@ const Footer = () => {
                 type="email"
                 placeholder="Your email"
                 className="px-4 py-2 rounded text-black flex-1"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
-              <button className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded text-white">
+              <button onClick={handleSubmit} className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded text-white">
                 SEND
               </button>
-            </div>
-            <div className="mt-4 flex items-center gap-2">
-              <input type="checkbox" className="rounded" />
-              <p className="text-sm">I have read and agree to the Privacy Policy.</p>
             </div>
           </div>
         </div>
