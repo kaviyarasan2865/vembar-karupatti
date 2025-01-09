@@ -1,5 +1,36 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
+
+// Delete Confirmation Modal Component
+const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, productName }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+        <h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
+        <p className="text-gray-600 mb-6">
+          Are you sure you want to delete the product "{productName}"? This action cannot be undone.
+        </p>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Page = () => {
   
@@ -12,6 +43,11 @@ const Page = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [products, setProducts] = useState([]);
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    productId: null,
+    productName: ''
+  });
   
   const initialFormData = {
     name: '',
@@ -146,7 +182,12 @@ const Page = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to ${editMode ? 'update' : 'add'} product`);
+        toast.error(errorData.error || `Failed to ${editMode ? 'update' : 'add'} product`);
+      } else{
+        toast.success(editMode? 'Product updated successfully' : 'Product added successfully');
+        setFormData(initialFormData);
+        setEditMode(false);
+        setFormOpen(false);
       }
 
       await fetchProducts();
@@ -156,19 +197,34 @@ const Page = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDeleteClick = (product) => {
+    setDeleteModal({
+      isOpen: true,
+      productId: product._id,
+      productName: product.name
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
     try {
       const response = await fetch('/api/admin/product', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({ id: deleteModal.productId }),
       });
-      if (!response.ok) throw new Error('Failed to delete category');
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete product');
+      }
+      
+      toast.success('Product deleted successfully');
       await fetchProducts();
+      setDeleteModal({ isOpen: false, productId: null, productName: '' });
     } catch (error) {
       console.error(error);
+      toast.error('Failed to delete product');
     }
   };
 
@@ -179,10 +235,10 @@ const Page = () => {
   };
 
   const productForm = () => (
-    <div className="fixed inset-0 bg-black/50 flex justify-center items-center overflow-y-auto p-4">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-3xl my-8">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center p-4">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] flex flex-col">
+        <div className="p-6 border-b">
+          <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold">{editMode ? 'Edit Product' : 'Add Product'}</h2>
             <button
               onClick={handleCloseForm}
@@ -193,7 +249,9 @@ const Page = () => {
               </svg>
             </button>
           </div>
-
+        </div>
+  
+        <div className="overflow-y-auto flex-1 p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -208,7 +266,7 @@ const Page = () => {
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-
+  
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
                 <select
@@ -226,7 +284,7 @@ const Page = () => {
                   ))}
                 </select>
               </div>
-
+  
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
                 <textarea
@@ -240,7 +298,7 @@ const Page = () => {
                 />
               </div>
             </div>
-
+  
             {/* Units Section */}
             <div className="border rounded-lg p-4 space-y-4">
               <div className="flex justify-between items-center">
@@ -253,7 +311,7 @@ const Page = () => {
                   + Add Unit
                 </button>
               </div>
-
+  
               {formData.units.map((unit, index) => (
                 <div key={index} className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 border rounded-lg">
                   <div>
@@ -271,7 +329,7 @@ const Page = () => {
                       ))}
                     </select>
                   </div>
-
+  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
                     <input
@@ -283,7 +341,7 @@ const Page = () => {
                       className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-
+  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹) *</label>
                     <input
@@ -296,7 +354,7 @@ const Page = () => {
                       className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-
+  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Stock *</label>
                     <input
@@ -308,7 +366,7 @@ const Page = () => {
                       className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-
+  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Discount (%)</label>
                     <input
@@ -320,7 +378,7 @@ const Page = () => {
                       className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-
+  
                   <div className="flex items-end">
                     {formData.units.length > 1 && (
                       <button
@@ -335,7 +393,7 @@ const Page = () => {
                 </div>
               ))}
             </div>
-
+  
             {/* Image Upload Fields */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -358,7 +416,7 @@ const Page = () => {
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-
+  
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Image 2</label>
                 {editMode && formData.currentImage2 && (
@@ -376,7 +434,7 @@ const Page = () => {
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-
+  
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Image 3</label>
                 {editMode && formData.currentImage3 && (
@@ -395,28 +453,30 @@ const Page = () => {
                 />
               </div>
             </div>
-
-            <div className="flex justify-end space-x-4">
-              <button
-                type="button"
-                onClick={handleCloseForm}
-                className="px-4 py-2 border rounded-md hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors"
-                >
-                  {editMode ? 'Update Product' : 'Add Product'}
-                </button>
-              </div>
-            </form>
+          </form>
+        </div>
+  
+        <div className="p-6 border-t">
+          <div className="flex justify-end space-x-4">
+            <button
+              type="button"
+              onClick={handleCloseForm}
+              className="px-4 py-2 border rounded-md hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors"
+            >
+              {editMode ? 'Update Product' : 'Add Product'}
+            </button>
           </div>
         </div>
       </div>
-    );
-  
+    </div>
+  );
+
     return (
       <div>
         <div className="p-8 max-w-6xl mx-auto space-y-6">
@@ -469,7 +529,7 @@ const Page = () => {
                           Edit
                         </button>
                         <button  
-                          onClick={() => handleDelete(product._id)}
+                          onClick={() => handleDeleteClick(product)}
                           className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition-colors"
                         >
                           Delete
@@ -489,9 +549,20 @@ const Page = () => {
             </div>
           </div>
         </div>
+  
+        {/* Delete Confirmation Modal */}
+        <DeleteConfirmationModal
+          isOpen={deleteModal.isOpen}
+          onClose={() => setDeleteModal({ isOpen: false, productId: null, productName: '' })}
+          onConfirm={handleDeleteConfirm}
+          productName={deleteModal.productName}
+        />
+  
+        {/* Product Form Modal */}
         {formOpen && productForm()}
       </div>
     );
   };
+  
   
   export default Page;

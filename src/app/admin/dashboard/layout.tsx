@@ -20,7 +20,7 @@ export default function DashboardLayout({
         <div className="lg:hidden flex items-center p-4 border-b border-[#2A2A2A]">
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="text-white hover:text-[#F05D23]"
+            className="text-amber-600 hover:text-amber-800"
           >
             <Menu className="h-6 w-6" />
           </button>

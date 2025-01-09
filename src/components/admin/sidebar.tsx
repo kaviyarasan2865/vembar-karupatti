@@ -121,7 +121,7 @@ export default function Sidebar({
           {/* Close button for mobile */}
           <button 
             onClick={() => setIsOpen(false)}
-            className="lg:hidden text-white hover:text-[#F05D23]"
+            className="lg:hidden text-amber-600 hover:text-amber-800"
           >
             <X className="h-6 w-6" />
           </button>
@@ -152,9 +152,9 @@ export default function Sidebar({
         <div className="border-t border-[#2A2A2A] p-3">
           <button 
             onClick={handleLogout}
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-amber-800 hover:bg-[#2A2A2A] hover:text-white"
+            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-amber-800 hover:bg-orange-300"
           >
-            <LogOut className="h-5 w-5 text-amber-800"/>
+            <LogOut className="h-5 w-5 text-amber-800 hover:text-white"/>
             Sign out
           </button>
         </div>

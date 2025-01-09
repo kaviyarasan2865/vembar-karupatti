@@ -1,7 +1,147 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
 
+// Delete Confirmation Modal Component
+const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, categoryName }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+        <h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
+        <p className="text-gray-600 mb-6">
+          Are you sure you want to delete the category "{categoryName}"? This action cannot be undone.
+        </p>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Category Form Component
+const CategoryForm = ({ 
+  isEdit, 
+  onSubmit, 
+  onClose, 
+  name, 
+  setName, 
+  description, 
+  setDescription, 
+  image, 
+  handleFileChange 
+}) => (
+  <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-40">
+    <div className="bg-white rounded-lg shadow-lg w-full max-w-md">
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">{isEdit ? 'Edit Category' : 'Add Category'}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              Category Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter category name"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+              Description
+            </label>
+            <input
+              type="text"
+              id="description"
+              name="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter category description"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="image" className="block text-sm font-medium text-gray-700">
+              Image
+            </label>
+            <input
+              id="image"
+              name="image"
+              type="file"
+              accept="image/*"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={handleFileChange}
+            />
+            {image && (
+              <img
+                src={image}
+                alt="Preview"
+                className="mt-2 w-32 h-32 object-cover rounded"
+              />
+            )}
+          </div>
+          <div className="flex justify-end gap-2 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            >
+              {isEdit ? 'Update Category' : 'Add Category'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+);
+
+// Main Page Component
 const Page = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -10,6 +150,11 @@ const Page = () => {
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    categoryId: null,
+    categoryName: ''
+  });
 
   const fetchCategories = async () => {
     try {
@@ -19,6 +164,7 @@ const Page = () => {
       setCategories(data);
     } catch (error) {
       console.error(error);
+      toast.error('Failed to fetch categories');
     }
   };
 
@@ -54,8 +200,10 @@ const Page = () => {
       setName('');
       setDescription('');
       setImage(null);
+      toast.success('Category added successfully');
     } catch (error) {
       console.error('Error creating category:', error.message);
+      toast.error('Failed to add category');
     }
   };
 
@@ -97,24 +245,41 @@ const Page = () => {
       setName('');
       setDescription('');
       setImage(null);
+      toast.success('Category updated successfully');
     } catch (error) {
       console.error('Error updating category:', error.message);
+      toast.error('Failed to update category');
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDeleteClick = (category) => {
+    setDeleteModal({
+      isOpen: true,
+      categoryId: category.id,
+      categoryName: category.name
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
     try {
       const response = await fetch('/api/admin/category', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({ id: deleteModal.categoryId }),
       });
-      if (!response.ok) throw new Error('Failed to delete category');
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete category');
+      }
+      
       await fetchCategories();
+      toast.success('Category deleted successfully');
+      setDeleteModal({ isOpen: false, categoryId: null, categoryName: '' });
     } catch (error) {
       console.error(error);
+      toast.error('Failed to delete category');
     }
   };
 
@@ -128,101 +293,6 @@ const Page = () => {
       reader.readAsDataURL(file);
     }
   };
-
-  const CategoryForm = ({ isEdit, onSubmit, onClose }) => (
-    <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">{isEdit ? 'Edit Category' : 'Add Category'}</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Category Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                value={name}
-                placeholder="Enter category name"
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                Description
-              </label>
-              <input
-                id="description"
-                name="description"
-                value={description}
-                placeholder="Enter category description"
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-                Image
-              </label>
-              <input
-                id="image"
-                name="image"
-                type="file"
-                accept="image/*"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onChange={handleFileChange}
-              />
-              {image && (
-                <img
-                  src={image}
-                  alt="Preview"
-                  className="mt-2 w-32 h-32 object-cover rounded"
-                />
-              )}
-            </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-              >
-                {isEdit ? 'Update Category' : 'Add Category'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-6">
@@ -267,7 +337,7 @@ const Page = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(category.id)}
+                      onClick={() => handleDeleteClick(category)}
                       className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition-colors"
                     >
                       Delete
@@ -280,6 +350,15 @@ const Page = () => {
         </div>
       </div>
 
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, categoryId: null, categoryName: '' })}
+        onConfirm={handleDeleteConfirm}
+        categoryName={deleteModal.categoryName}
+      />
+
+      {/* Add Category Modal */}
       {isFormOpen && (
         <CategoryForm
           isEdit={false}
@@ -290,9 +369,16 @@ const Page = () => {
             setDescription('');
             setImage(null);
           }}
+          name={name}
+          setName={setName}
+          description={description}
+          setDescription={setDescription}
+          image={image}
+          handleFileChange={handleFileChange}
         />
       )}
 
+      {/* Edit Category Modal */}
       {isEditFormOpen && (
         <CategoryForm
           isEdit={true}
@@ -304,6 +390,12 @@ const Page = () => {
             setDescription('');
             setImage(null);
           }}
+          name={name}
+          setName={setName}
+          description={description}
+          setDescription={setDescription}
+          image={image}
+          handleFileChange={handleFileChange}
         />
       )}
     </div>
