@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { BookmarkIcon, ChevronDownIcon } from "lucide-react";
+import {ChevronDownIcon } from "lucide-react";
 import Navbar from "@/components/user/Navbar";
 import Footer from "@/components/user/Footer";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { cartEventEmitter, CART_UPDATED_EVENT } from "@/cartEventEmitter";
 
 interface Unit {
   unit: string;
@@ -135,6 +136,8 @@ const ProductListings = () => {
         throw new Error(error.error || 'Failed to add item to cart');
       }
 
+      // Emit cart updated event after successful addition
+      cartEventEmitter.emit(CART_UPDATED_EVENT);
       toast.success('Item added to cart successfully');
     } catch (error) {
       console.error('Add to cart error:', error);
@@ -280,12 +283,6 @@ const ProductListings = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <button 
-                      className="p-2 border border-amber-200 rounded-lg hover:bg-amber-50 transition-colors"
-                      aria-label="Save for later"
-                    >
-                      <BookmarkIcon className="w-4 h-4 text-amber-600" />
-                    </button>
                     <button 
                       onClick={() => handleAddToCart(product, selectedUnitIndex, quantity)}
                       className="flex-1 bg-amber-600 text-white rounded-lg py-2 text-sm hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import ReviewSection from '@/components/user/ReviewSection'
 import { useSession } from 'next-auth/react'
 import { toast } from 'react-hot-toast'
+import { cartEventEmitter, CART_UPDATED_EVENT } from '@/cartEventEmitter';
 
 interface Unit {
   unit: string;
@@ -130,6 +131,7 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
         throw new Error(errorData.error || 'Failed to add item to cart');
       }
 
+      cartEventEmitter.emit(CART_UPDATED_EVENT); // Add this line
       toast.success('Item added to cart');
     } catch (error) {
       console.error('Add to cart error:', error);

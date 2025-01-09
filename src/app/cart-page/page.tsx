@@ -6,6 +6,7 @@ import Navbar from "@/components/user/Navbar";
 import { useSession } from "next-auth/react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { cartEventEmitter,CART_UPDATED_EVENT } from "@/cartEventEmitter";
 
 interface CartItem {
   productId: string;
@@ -102,7 +103,8 @@ const updateQuantity = async (productId: string, unitIndex: number, newQuantity:
     // Verify the response has the expected data structure
     if (Array.isArray(data.items)) {
       setItems(data.items);
-      toast.success('Quantity updated successfully');
+      cartEventEmitter.emit(CART_UPDATED_EVENT);
+      // toast.success('Quantity updated successfully');
     } else {
       throw new Error('Invalid response format from server');
     }
@@ -135,7 +137,7 @@ const updateQuantity = async (productId: string, unitIndex: number, newQuantity:
           !(item.productId === productId && item.unitIndex === unitIndex)
         )
       );
-
+      cartEventEmitter.emit(CART_UPDATED_EVENT);
       toast.success('Item removed from cart successfully');
     } catch (error: any) {
       console.error('Remove from cart error:', error);
