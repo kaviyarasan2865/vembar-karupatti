@@ -344,86 +344,92 @@ export default function OrdersPage() {
         </div>
 
         <Dialog
-          visible={showDialog}
-          onHide={() => setShowDialog(false)}
-          header="Order Details"
-          modal
-          style={{ width: '90%', maxWidth: '800px' }}
-          className="p-fluid"
-        >
-          {selectedOrder && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {statusConfig[selectedOrder.orderStatus].icon}
-                  <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${statusConfig[selectedOrder.orderStatus].bgColor} ${statusConfig[selectedOrder.orderStatus].color}`}>
-                    {selectedOrder.orderStatus.charAt(0).toUpperCase() + selectedOrder.orderStatus.slice(1)}
-                  </span>
-                </div>
-                <span className="text-gray-500">
-                  {new Date(selectedOrder.createdAt).toLocaleDateString()}
-                </span>
-              </div>
+  visible={showDialog}
+  onHide={() => setShowDialog(false)}
+  header="Order Details"
+  modal
+  style={{ width: '90%', maxWidth: '800px' }}
+  className="p-dialog-custom"
+  contentClassName="bg-white"
+  maskClassName="bg-black/75"
+  draggable={false}
+  resizable={false}
+>
+  {selectedOrder && (
+    <div className="space-y-6 bg-white">
+      <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+        <div className="flex items-center gap-2">
+          {statusConfig[selectedOrder.orderStatus].icon}
+          <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${statusConfig[selectedOrder.orderStatus].bgColor} ${statusConfig[selectedOrder.orderStatus].color}`}>
+            {selectedOrder.orderStatus.charAt(0).toUpperCase() + selectedOrder.orderStatus.slice(1)}
+          </span>
+        </div>
+        <span className="text-gray-500">
+          Order Date: {new Date(selectedOrder.createdAt).toLocaleDateString()}
+        </span>
+      </div>
 
-              <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <ShoppingBag className="h-5 w-5 text-gray-600" />
-                  <h3 className="text-lg font-semibold">Order Items</h3>
-                </div>
-                <div className="space-y-4">
-                  {selectedOrder.items.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center border-b pb-4 last:border-0">
-                      <div className="flex items-center gap-4">
-                        {item.image && (
-                          <img 
-                            src={item.image} 
-                            alt={item.name} 
-                            className="w-16 h-16 object-cover rounded-lg border border-gray-200"
-                            loading="lazy"
-                          />
-                        )}
-                        <div>
-                          <p className="font-medium text-gray-900">{item.name}</p>
-                          <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
-                        </div>
-                      </div>
-                      <p className="font-medium text-gray-900">₹{item.price.toFixed(2)}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex justify-between items-center pt-4 border-t">
-                  <span className="font-semibold text-gray-900">Total Amount</span>
-                  <span className="font-semibold text-lg text-gray-900">₹{selectedOrder.total.toFixed(2)}</span>
+      <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+        <div className="flex items-center gap-2 mb-4 border-b border-gray-200 pb-4">
+          <ShoppingBag className="h-5 w-5 text-gray-600" />
+          <h3 className="text-lg font-semibold">Order Items</h3>
+        </div>
+        <div className="space-y-4 max-h-[300px] overflow-y-auto">
+          {selectedOrder.items.map((item, index) => (
+            <div key={index} className="flex justify-between items-center border-b border-gray-200 pb-4 last:border-0 bg-white rounded-lg p-4">
+              <div className="flex items-center gap-4">
+                {item.image && (
+                  <img 
+                    src={item.image} 
+                    alt={item.name} 
+                    className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                    loading="lazy"
+                  />
+                )}
+                <div>
+                  <p className="font-medium text-gray-900">{item.name}</p>
+                  <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
                 </div>
               </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <MapPin className="h-5 w-5 text-gray-600" />
-                    <h3 className="text-lg font-semibold">Shipping Address</h3>
-                  </div>
-                  <p className="text-gray-600 leading-relaxed">
-                    {selectedOrder.shippingAddress.firstName} {selectedOrder.shippingAddress.lastName}<br />
-                    {selectedOrder.shippingAddress.address}<br />
-                    {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} {selectedOrder.shippingAddress.zipCode}
-                  </p>
-                </div>
-
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <CreditCard className="h-5 w-5 text-gray-600" />
-                    <h3 className="text-lg font-semibold">Payment Details</h3>
-                  </div>
-                  <div className="space-y-2 text-gray-600">
-                    <p>Method: {selectedOrder.paymentDetails.method}</p>
-                    <p>Payment ID: {selectedOrder.paymentDetails.razorpay_payment_id}</p>
-                  </div>
-                </div>
-              </div>
+              <p className="font-medium text-gray-900">₹{item.price.toFixed(2)}</p>
             </div>
-          )}
-        </Dialog>
+          ))}
+        </div>
+        <div className="flex justify-between items-center pt-4 border-t border-gray-200 mt-4">
+          <span className="font-semibold text-gray-900">Total Amount</span>
+          <span className="font-semibold text-lg text-gray-900">₹{selectedOrder.total.toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-gray-50 rounded-lg p-6">
+          <div className="flex items-center gap-2 mb-4 border-b border-gray-200 pb-4">
+            <MapPin className="h-5 w-5 text-gray-600" />
+            <h3 className="text-lg font-semibold">Shipping Address</h3>
+          </div>
+          <div className="bg-white rounded-lg p-4">
+            <p className="text-gray-600 leading-relaxed">
+              {selectedOrder.shippingAddress.firstName} {selectedOrder.shippingAddress.lastName}<br />
+              {selectedOrder.shippingAddress.address}<br />
+              {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} {selectedOrder.shippingAddress.zipCode}
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-lg p-6">
+          <div className="flex items-center gap-2 mb-4 border-b border-gray-200 pb-4">
+            <CreditCard className="h-5 w-5 text-gray-600" />
+            <h3 className="text-lg font-semibold">Payment Details</h3>
+          </div>
+          <div className="bg-white rounded-lg p-4 space-y-2 text-gray-600">
+            <p>Method: {selectedOrder.paymentDetails.method}</p>
+            <p>Payment ID: {selectedOrder.paymentDetails.razorpay_payment_id}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+</Dialog>
       </div>
     </div>
   )
