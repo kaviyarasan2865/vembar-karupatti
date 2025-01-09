@@ -4,7 +4,7 @@ import logo from "../../../public/assets/logo.png";
 import Image from "next/image";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { UserCircle, ShoppingCart, ShoppingBag, Search } from "lucide-react";
+import { UserCircle, ShoppingCart, ShoppingBag, Search,ChevronDown,LogOut} from "lucide-react";
 import { cartEventEmitter, CART_UPDATED_EVENT } from '../../cartEventEmitter';
 
 const Navbar: React.FC = () => {
@@ -98,31 +98,33 @@ const Navbar: React.FC = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center space-x-2 text-white hover:bg-[#b65014] px-3 py-2 rounded-md"
+                  className="flex items-center space-x-2 text-white bg-amber-800 hover:bg-[#b65014] px-3 py-2 rounded-md"
                 >
                   <UserCircle className="w-6 h-6" />
                   <span className="text-sm">{session.user.email?.split('@')[0]}</span>
+                  <span><ChevronDown  className="w-4 h-4" /></span>
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                  <div className="absolute right-0  mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
                     <Link
                       href="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      Profile
+                      <span className='flex gap-2 justify-items-center'><UserCircle className="w-6 h-6" />Profile</span>
+                      
                     </Link>
                     <Link
                       href="/orders"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      Orders
+                      <span className='flex gap-2 justify-items-center'><ShoppingBag />Orders</span>
                     </Link>
                     <button
                       onClick={handleSignOut}
                       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                     >
-                      Sign out
+                      <span className='flex gap-2 justify-items-center'><LogOut />Sign out</span>
                     </button>
                   </div>
                 )}
@@ -166,22 +168,16 @@ const Navbar: React.FC = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-[#78350F] space-y-2 px-4 py-3">
           <Link
-            href="/"
-            className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014]"
-          >
-            Home
-          </Link>
-          <Link
             href="/product-listings"
-            className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014]"
+            className="flex gap-3 text-[15px] text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014]"
           >
-            Products
+           <ShoppingBag /> Products
           </Link>
           <Link
             href="/cart-page"
-            className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014] relative inline-flex items-center"
+            className="flex gap-3 text-[15px] text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014] relative inline-flex items-center"
           >
-            Cart
+            <ShoppingCart /> Cart
             {cartItemCount > 0 && (
               <span className="ml-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {cartItemCount}
@@ -194,19 +190,22 @@ const Navbar: React.FC = () => {
                 href="/profile"
                 className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014]"
               >
-                Profile
+            <span className='flex gap-2 justify-items-center'><UserCircle className="w-6 h-6" />Profile</span>
+
               </Link>
               <Link
                 href="/orders"
                 className="block text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014]"
               >
-                Orders
+                <span className='flex gap-2 justify-items-center'><ShoppingBag />Orders</span>
+
               </Link>
               <button
                 onClick={handleSignOut}
                 className="block w-full text-left text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-[#b65014]"
               >
-                Sign out
+               <span className='flex gap-2 justify-items-center'><LogOut />Sign out</span>
+
               </button>
             </>
           ) : (
