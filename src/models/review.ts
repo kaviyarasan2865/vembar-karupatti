@@ -1,35 +1,41 @@
 import mongoose from "mongoose"
 
 const reviewSchema = new mongoose.Schema({
-    user:{
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required:true
+        required: true
     },
-    feedback:{
-        type: String,
-        required:true
-    },
-    rating:{
-        type: Number,
-        min:1,
-        max:5,
-        required:true
-    },
-    product:{
+    product: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
-        required:true
+        required: true
     },
-    createdAt:{
+    rating: {
+        type: Number,
+        required: true,
+        min: 1,
+        max: 5
+    },
+    feedback: {
+        type: String,
+        required: true
+    },
+    images: [{
+        type: String
+    }],
+    createdAt: {
         type: Date,
         default: Date.now
     },
-    updatedAt:{
+    updatedAt: {
         type: Date
     }
 });
 
-const Review = new mongoose.models.Review ||  mongoose.model("Review",reviewSchema);
+// Add index to prevent multiple reviews from same user for same product
+reviewSchema.index({ user: 1, product: 1 }, { unique: true });
+
+const Review = mongoose.models.Review || mongoose.model("Review", reviewSchema);
 
 export default Review;

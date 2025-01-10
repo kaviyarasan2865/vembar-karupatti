@@ -319,7 +319,7 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
           </div>
         </div>
       </div>
-      <ReviewSection />
+      <ReviewSection productId={product._id} />
       <Footer />
     </>
   );
