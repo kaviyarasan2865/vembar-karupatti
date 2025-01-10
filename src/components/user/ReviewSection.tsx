@@ -42,10 +42,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch(`/api/reviews/${productId}`);
+      const response = await fetch(`/api/user/review/${productId}`);
       if (!response.ok) throw new Error('Failed to fetch reviews');
       const data = await response.json();
-      
       setReviews(data.reviews);
       setUserHasReviewed(data.userHasReviewed);
       setLoading(false);
@@ -208,7 +207,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
                         >
                           <Image
                             src={url}
-                            alt={`Preview ${index + 1}`}
+                            alt={`Review image preview ${index + 1}`}
                             width={120}
                             height={120}
                             className="rounded-lg object-cover"
@@ -286,8 +285,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
                 >
                   <div className="flex items-center gap-4 mb-3">
                     <Image
-                      src={review.userId.image || '/placeholder-avatar.jpg'}
-                      alt={review.userId.name}
+                      src={review.userId.image || 'https://cdn-icons-png.flaticon.com/512/3607/3607444.png'}
+                      alt={review.userId.name || 'Anonymous'}
                       width={40}
                       height={40}
                       className="rounded-full"
@@ -329,7 +328,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
                         >
                           <Image
                             src={image}
-                            alt={`Review image ${index + 1}`}
+                            alt={`Review image by ${review.userId.name} - ${index + 1}`}
                             width={120}
                             height={120}
                             className="object-cover"
