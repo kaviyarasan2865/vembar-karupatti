@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import logo from "../../../public/assets/logo.png";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
   UserCircle,
@@ -19,6 +20,7 @@ const Navbar: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [cartItemCount, setCartItemCount] = useState(0);
   const { data: session, status } = useSession();
+  const router = useRouter();
 
   const fetchCartCount = async () => {
     if (status === "authenticated") {
@@ -66,7 +68,10 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo Section - Simplified */}
-          <div className="flex-shrink-0 flex items-center gap-2">
+          <div
+            onClick={() => router.push("/")}
+            className="flex-shrink-0 flex items-center gap-2 hover:cursor-pointer"
+          >
             <Image
               src={logo}
               alt="Logo"
