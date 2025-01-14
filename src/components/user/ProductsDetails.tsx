@@ -41,24 +41,30 @@ const ProductsDetails = () => {
   };
 
   return (
-    <section className="py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12">
-          Featured Products
-        </h2>
-        <div className="grid md:grid-cols-3 gap-8">
+    <section className="py-20 bg-neutral-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-4">
+            Featured Products
+          </h2>
+          <p className="text-lg text-neutral-600">
+            Discover our most loved traditional jaggery products
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {products.slice(0, ITEMS_TO_SHOW).map((product, index) => (
             <div
               key={product.id ?? `product-${index}`}
-              className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 group relative"
+              className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 group relative"
             >
-              {/* Product Image Container */}
+              {/* Product Image */}
               <div className="relative h-[250px]">
                 <Image
                   src={product.image}
                   alt={product.name}
                   fill
-                  className="object-cover rounded-t-lg"
+                  className="object-cover"
                   priority
                 />
                 {product.discount && (
@@ -69,50 +75,46 @@ const ProductsDetails = () => {
               </div>
 
               {/* Product Details */}
-              <div className="p-6 space-y-4">
-                <div className="space-y-2">
-                  <h3 className="text-xl font-semibold text-gray-800 text-center">
-                    {product.name}
-                  </h3>
-                  <p className="text-gray-600 text-sm line-clamp-2">
-                    {product.description}
-                  </p>
-                </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-neutral-900 mb-2 text-center">
+                  {product.name}
+                </h3>
+                <p className="text-neutral-600 text-center mb-4 line-clamp-2">
+                  {product.description}
+                </p>
 
-                <div className="flex justify-between items-center pt-4">
+                <div className="flex justify-between items-center">
                   <div className="space-y-1">
-                    <p className="text-2xl font-bold text-gray-900">
+                    <span className="text-amber-600 font-bold text-xl">
                       {product.price}
-                    </p>
+                    </span>
                     {product.originalPrice && (
-                      <p className="text-sm text-gray-500 line-through">
+                      <p className="text-sm text-neutral-500 line-through">
                         {product.originalPrice}
                       </p>
                     )}
                   </div>
+                  <button
+                    onClick={() => handleProductClick(product._id)}
+                    className="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition flex items-center gap-2"
+                  >
+                    View Details
+                    <ChevronsRight className="w-4 h-4" />
+                  </button>
                 </div>
-              </div>
-
-              {/* Overlay Content - Visible on Hover */}
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg flex items-center justify-center">
-                <button
-                  onClick={() => handleProductClick(product._id)}
-                  className="px-6 py-3 bg-[#F59E0B] text-white rounded-md hover:bg-[#D97706] transition-colors flex items-center gap-2"
-                >
-                  View Details <ChevronsRight className="w-5 h-5" />
-                </button>
               </div>
             </div>
           ))}
         </div>
 
         {hasMoreProducts && (
-          <div className="flex justify-center mt-12">
+          <div className="text-center mt-12">
             <button
               onClick={() => router.push("./product-listings")}
-              className="px-6 py-3 bg-[#F59E0B] text-white rounded-md hover:bg-[#D97706] transition-colors flex items-center gap-2 text-lg"
+              className="inline-flex items-center bg-black text-white px-6 py-3 rounded-[8px] hover:bg-neutral-800 transition-colors duration-300 font-medium text-sm"
             >
-              View All Products <ChevronsRight className="w-5 h-5" />
+              View All Products
+              <span className="ml-2">→</span>
             </button>
           </div>
         )}

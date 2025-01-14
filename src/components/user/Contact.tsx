@@ -1,105 +1,162 @@
-'use client'
-import React, {useState} from 'react';
-import toast from 'react-hot-toast';
+"use client";
+import React, { useState } from "react";
+import toast from "react-hot-toast";
+import { Phone, Mail, MapPin } from "lucide-react";
 
 const ContactForm = () => {
-const [name,setName] = useState("");
-const [email,setEmail] = useState("");
-const [subject,setSubject] = useState("");
-const [message,setMessage] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("general");
+  const [message, setMessage] = useState("");
 
-const handleSubmit = async()=>{
-  const res = await fetch(`/api/user/contact`,{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({name,email,subject,message})
-  });
-  if(!res.ok){
-    throw new Error("Failed to send message");
-  }
-  toast.success("Successfully sent message")
-}
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`/api/user/contact`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, subject, message }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to send message");
+      }
+      toast.success("Successfully sent message");
+    } catch (error) {
+      toast.error("Failed to send message");
+    }
+  };
+
   return (
-    <div className="w-full mx-auto p-4 sm:p-6 lg:p-8">
-      <h2 className="text-2xl font-semibold text-center text-gray-900 mb-8">Contact Us</h2>
-      
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Form */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-          <div className="p-6">
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div className="space-y-4">
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Name"
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-md 
-                    focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent 
-                    transition-colors placeholder-gray-400"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
+    <section id="contact" className="py-20 bg-neutral-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16 animate__animated animate__fadeIn">
+          <span className="text-amber-500 font-medium text-sm uppercase tracking-wider">
+            Contact Us
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mt-4">
+            Get In Touch
+          </h2>
+          <p className="text-gray-400 mt-4">
+            Have questions? We're here to help you
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Contact Information */}
+          <div className="space-y-8 animate__animated animate__fadeInLeft">
+            <div className="bg-neutral-800 p-6 rounded-xl">
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-500">
+                  <Phone className="w-6 h-6" />
                 </div>
-                <div>
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-md 
-                    focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent 
-                    transition-colors placeholder-gray-400"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Subject"
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-md 
-                    focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent 
-                    transition-colors placeholder-gray-400"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <textarea
-                    placeholder="Message"
-                    rows={6}
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-md 
-                    focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent 
-                    resize-none transition-colors placeholder-gray-400"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                  />
+                <div className="ml-4">
+                  <h3 className="text-white font-bold">Phone</h3>
+                  <p className="text-gray-400">+91 98765 43210</p>
                 </div>
               </div>
+            </div>
+
+            <div className="bg-neutral-800 p-6 rounded-xl">
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-500">
+                  <Mail className="w-6 h-6" />
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-white font-bold">Email</h3>
+                  <p className="text-gray-400">info@jaggeryproducts.com</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-neutral-800 p-6 rounded-xl">
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-500">
+                  <MapPin className="w-6 h-6" />
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-white font-bold">Address</h3>
+                  <p className="text-gray-400">
+                    123 Natural Way, Healthy City, India
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Form */}
+          <div className="bg-neutral-800 p-8 rounded-xl animate__animated animate__fadeInRight">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="name" className="block text-white mb-2">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg bg-neutral-700 border-neutral-600 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-white mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg bg-neutral-700 border-neutral-600 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="subject" className="block text-white mb-2">
+                  Subject
+                </label>
+                <select
+                  id="subject"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg bg-neutral-700 border-neutral-600 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                >
+                  <option value="general">General Inquiry</option>
+                  <option value="support">Product Support</option>
+                  <option value="wholesale">Wholesale Query</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="message" className="block text-white mb-2">
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-lg bg-neutral-700 border-neutral-600 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  required
+                />
+              </div>
+
               <button
                 type="submit"
-                className="w-full sm:w-auto px-6 py-2.5 bg-orange-500 text-white font-medium 
-                rounded-md hover:bg-orange-600 transition-colors"
+                className="w-full bg-amber-500 text-white py-3 rounded-lg hover:bg-amber-600 transition duration-300"
               >
                 Send Message
               </button>
             </form>
           </div>
         </div>
-
-        {/* Map */}
-        <div className="relative h-[500px] rounded-lg overflow-hidden bg-gray-100">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.1969460138376!2d-122.084!3d37.422!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMznCsDI1JzE5LjIiTiAxMjLCsDA1JzAyLjQiVw!5e0!3m2!1sen!2sus!4v1234567890"
-            className="w-full h-full rounded-lg"
-            style={{ border: 0 }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
-        </div>
       </div>
-    </div>
+    </section>
   );
 };
 

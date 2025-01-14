@@ -1,25 +1,25 @@
-import React,{useState} from 'react';
-import { toast } from 'react-hot-toast';
+import React, { useState } from "react";
+import { toast } from "react-hot-toast";
+import { Facebook, Twitter, Instagram } from "lucide-react";
 
 const Footer = () => {
-  const [email,setEmail] = useState("");
+  const [email, setEmail] = useState("");
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Basic email validation
-    if (!email || !email.includes('@')) {
-      toast.error('Please enter a valid email address');
+
+    if (!email || !email.includes("@")) {
+      toast.error("Please enter a valid email address");
       return;
     }
 
     try {
-      const res = await fetch('/api/newsletter', {
+      const res = await fetch("/api/newsletter", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email }),
       });
 
       const data = await res.json();
@@ -28,124 +28,197 @@ const Footer = () => {
         toast.success(data.message);
         setEmail("");
       } else {
-        // Display the specific error message from the server
         toast.error(data.error || "Failed to subscribe");
       }
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
     }
-  }
-  
+  };
 
   return (
-    <>
-      {/* Top Info Bar */}
-      <div className="bg-[#FEF3C7] text-black py-4">
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="flex items-center gap-2">
-            <div className="bg-[#92400E] rounded-full p-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-bold">CALL US</h3>
-              <p className="text-sm">+919876692368, +919788131234</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="bg-[#92400E] rounded-full p-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-bold">STORE ADDRESS</h3>
-              <p className="text-sm">NO26, North Bazar, Udangudi-628203, Thoothukudi-dist, Tamilnadu</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="bg-[#92400E] rounded-full p-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h4a1 1 0 011 1v6h-2.05a2.5 2.5 0 01-4.9 0H14V7z" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-bold">FREE SHIPPING DOMESTIC CITIES</h3>
-              <p className="text-sm">Free Shipping All Over India...</p>
+    <footer id="footer" className="bg-neutral-900 text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Main Footer */}
+        <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Company Info */}
+          <div className="space-y-4">
+            <h3 className="text-2xl font-bold text-amber-500">
+              Natural Jaggery
+            </h3>
+            <p className="text-gray-400">
+              Bringing nature's sweetness to your table with traditional wisdom
+              and modern standards.
+            </p>
+            <div className="flex space-x-4">
+              <a
+                href="#"
+                className="text-gray-400 hover:text-amber-500 transition"
+              >
+                <Facebook className="w-6 h-6" />
+              </a>
+              <a
+                href="#"
+                className="text-gray-400 hover:text-amber-500 transition"
+              >
+                <Twitter className="w-6 h-6" />
+              </a>
+              <a
+                href="#"
+                className="text-gray-400 hover:text-amber-500 transition"
+              >
+                <Instagram className="w-6 h-6" />
+              </a>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="bg-[#92400E] rounded-full p-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-bold">100% SECURE PAYMENT</h3>
-              <p className="text-sm">100% money back guarantee</p>
+          {/* Quick Links */}
+          <div>
+            <h4 className="text-lg font-bold mb-4">Quick Links</h4>
+            <ul className="space-y-2">
+              <li>
+                <a
+                  href="#hero"
+                  className="text-gray-400 hover:text-amber-500 transition"
+                >
+                  Home
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#about"
+                  className="text-gray-400 hover:text-amber-500 transition"
+                >
+                  About Us
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#products"
+                  className="text-gray-400 hover:text-amber-500 transition"
+                >
+                  Products
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#blog"
+                  className="text-gray-400 hover:text-amber-500 transition"
+                >
+                  Blog
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#contact"
+                  className="text-gray-400 hover:text-amber-500 transition"
+                >
+                  Contact
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Products */}
+          <div>
+            <h4 className="text-lg font-bold mb-4">Products</h4>
+            <ul className="space-y-2">
+              <li>
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-amber-500 transition"
+                >
+                  Natural Jaggery
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-amber-500 transition"
+                >
+                  Jaggery Powder
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-amber-500 transition"
+                >
+                  Liquid Jaggery
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-amber-500 transition"
+                >
+                  Gift Packs
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-amber-500 transition"
+                >
+                  Wholesale
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Newsletter */}
+          <div>
+            <h4 className="text-lg font-bold mb-4">Newsletter</h4>
+            <p className="text-gray-400 mb-4">
+              Subscribe to get updates about our products and offers
+            </p>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                type="email"
+                placeholder="Your email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg bg-neutral-800 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-amber-500 text-white"
+              />
+              <button
+                type="submit"
+                className="w-full bg-amber-500 text-white py-2 rounded-lg hover:bg-amber-600 transition duration-300"
+              >
+                Subscribe
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Bottom Footer */}
+        <div className="border-t border-neutral-800 py-8 mt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-gray-400 text-sm">
+              © 2023 Natural Jaggery. All rights reserved.
+            </p>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              <a
+                href="#"
+                className="text-gray-400 hover:text-amber-500 text-sm"
+              >
+                Privacy Policy
+              </a>
+              <a
+                href="#"
+                className="text-gray-400 hover:text-amber-500 text-sm"
+              >
+                Terms of Service
+              </a>
+              <a
+                href="#"
+                className="text-gray-400 hover:text-amber-500 text-sm"
+              >
+                Shipping Policy
+              </a>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Main Footer */}
-      <footer className="bg-[#92400E] text-white py-8">
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4">
-          <div>
-            <h3 className="font-bold mb-4">CUSTOM LINKS</h3>
-            <ul className="space-y-2">
-              <li>About Us</li>
-              <li>Delivery</li>
-              <li>Privacy Policy</li>
-              <li>Terms & Conditions</li>
-              <li>Custom Links</li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-bold mb-4">MY ACCOUNT</h3>
-            <ul className="space-y-2">
-              <li>My Account</li>
-              <li>Order History</li>
-              <li>Newsletter</li>
-              <li>Gift Certificates</li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-bold mb-4">CUSTOMER SERVICE</h3>
-            <ul className="space-y-2">
-              <li>Contact</li>
-              <li>Site Map</li>
-              <li>Brands</li>
-              <li>Unlimited Links</li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-bold mb-4">NEWSLETTER</h3>
-            <p className="mb-4">Don&apos;t miss any updates or promotions by signing up to our newsletter.</p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Your email"
-                className="px-4 py-2 rounded text-black flex-1"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <button onClick={handleSubmit} className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded text-white">
-                SEND
-              </button>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </>
+    </footer>
   );
 };
 

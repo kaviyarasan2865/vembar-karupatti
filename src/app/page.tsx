@@ -5,6 +5,7 @@ import Footer from "@/components/user/Footer";
 import Hero from "@/components/user/Hero";
 import Navbar from "@/components/user/Navbar";
 import Organic from "@/components/user/Organic";
+import Process from "@/components/user/Process";
 import ProductsDetails from "@/components/user/ProductsDetails";
 import Testimonial from "@/components/user/Testimonial";
 import React from "react";
@@ -16,6 +17,7 @@ const Page = () => {
       <Hero />
       <ProductsDetails />
       <Aboutus />
+      <Process/>
       <Organic />
       <Testimonial />
       <ContactForm />
