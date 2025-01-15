@@ -75,7 +75,7 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="pt-20 flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
       </div>
     )
@@ -83,7 +83,7 @@ export default function ProfilePage() {
 
   if (error) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="pt-20 flex justify-center items-center min-h-screen">
         <div className="text-red-600">{error}</div>
       </div>
     )
@@ -91,7 +91,7 @@ export default function ProfilePage() {
 
   if (!profile) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="pt-20 flex justify-center items-center min-h-screen">
         <div className="text-gray-600">No profile data available</div>
       </div>
     )
@@ -100,7 +100,7 @@ export default function ProfilePage() {
   return (
     <div>
         <Navbar/>
-    <div className="container mx-auto py-8 px-4">
+    <div className="pt-20 container mx-auto py-8 px-4">
       <div className='max-w-3xl mx-auto bg-white rounded-lg shadow-lg'>
         <div className="flex items-center justify-between p-6 border-b">
           <h1 className="text-2xl font-bold text-gray-900">Profile Information</h1>

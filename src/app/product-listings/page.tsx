@@ -15,11 +15,19 @@ interface Unit {
   stock: number;
 }
 
+interface Category {
+  _id: string;
+  name: string;
+  description: string;
+  image: string;
+}
+
 interface Product {
   _id: string;
   name: string;
   description: string;
   category: string;
+  categoryName?: string;
   isActive: boolean;
   units: Unit[];
   image: string;
@@ -28,6 +36,7 @@ interface Product {
 const ProductListings = () => {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedUnits, setSelectedUnits] = useState<{ [key: string]: number }>(
@@ -42,10 +51,10 @@ const ProductListings = () => {
   const [selectedPriceRange, setSelectedPriceRange] = useState<string>("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
-  // Get unique categories from products
-  const categories = [
+  // Get unique category names from products
+  const categoryNames = [
     "All Products",
-    ...new Set(products.map((product) => product.category)),
+    ...new Set(products.map((product) => product.categoryName).filter(Boolean)),
   ];
 
   const priceRanges = [
@@ -55,27 +64,52 @@ const ProductListings = () => {
     { label: "Above ₹1000", min: 1000, max: Infinity },
   ];
 
+  // Fetch both products and categories
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch("/api/user/products");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+
+        // Fetch categories first
+        const categoryResponse = await fetch("/api/categories");
+        if (!categoryResponse.ok) {
+          throw new Error(`HTTP error! status: ${categoryResponse.status}`);
         }
-        const data = await response.json();
-        setProducts(data);
+        const categoryData = await categoryResponse.json();
+        setCategories(categoryData);
+
+        // Then fetch products
+        const productResponse = await fetch("/api/user/products");
+        if (!productResponse.ok) {
+          throw new Error(`HTTP error! status: ${productResponse.status}`);
+        }
+        const productData = await productResponse.json();
+
+        // Map category IDs to names
+        const productsWithCategoryNames = productData.map(
+          (product: Product) => {
+            const category = categoryData.find(
+              (cat: Category) => cat._id === product.category
+            );
+            return {
+              ...product,
+              categoryName: category ? category.name : "Uncategorized",
+            };
+          }
+        );
+
+        setProducts(productsWithCategoryNames);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Error fetching data:", error);
         setError(
-          error instanceof Error ? error.message : "Failed to fetch products"
+          error instanceof Error ? error.message : "Failed to fetch data"
         );
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -202,7 +236,7 @@ const ProductListings = () => {
       !selectedCategories.includes("All Products")
     ) {
       results = results.filter((product) =>
-        selectedCategories.includes(product.category)
+        selectedCategories.includes(product.categoryName || "Uncategorized")
       );
     }
 
@@ -252,7 +286,7 @@ const ProductListings = () => {
     <>
       <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="pt-20 px-4 lg:px-8">
+        <div className="pt-20 px-4 lg:px-8 pb-20">
           {/* Search and Filter Toggle */}
           <div className="max-w-7xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 items-center">
             <button
@@ -262,15 +296,29 @@ const ProductListings = () => {
               <SlidersHorizontal className="w-4 h-4" />
               Filters
             </button>
-            <div className="flex-1 relative w-full max-w-2xl">
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <div className="flex-1 flex gap-4 items-center w-full max-w-2xl">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              </div>
+              {(searchTerm || selectedCategories.length > 1 || selectedPriceRange) && (
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSelectedCategories(["All Products"]);
+                    setSelectedPriceRange("");
+                  }}
+                  className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors flex items-center gap-2"
+                >
+                  Clear Filters
+                </button>
+              )}
             </div>
           </div>
 
@@ -285,7 +333,7 @@ const ProductListings = () => {
               <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
                 <h3 className="font-semibold mb-3 text-gray-800">Categories</h3>
                 <div className="space-y-2">
-                  {categories.map((category) => (
+                  {categoryNames.map((category) => (
                     <label
                       key={category}
                       className="flex items-center gap-2 text-gray-600 hover:text-amber-600 cursor-pointer"
