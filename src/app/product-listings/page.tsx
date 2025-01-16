@@ -291,7 +291,7 @@ const ProductListings = () => {
           <div className="max-w-7xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 items-center">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="lg:hidden flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700"
+              className="lg:hidden flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:border-amber-500/50 transition-colors shadow-sm"
             >
               <SlidersHorizontal className="w-4 h-4" />
               Filters
@@ -303,11 +303,13 @@ const ProductListings = () => {
                   placeholder="Search products..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-sm"
                 />
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               </div>
-              {(searchTerm || selectedCategories.length > 1 || selectedPriceRange) && (
+              {(searchTerm ||
+                selectedCategories.length > 1 ||
+                selectedPriceRange) && (
                 <button
                   onClick={() => {
                     setSearchTerm("");
@@ -330,8 +332,8 @@ const ProductListings = () => {
               }`}
             >
               {/* Categories */}
-              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                <h3 className="font-semibold mb-3 text-gray-800">Categories</h3>
+              <div className="bg-white p-4 rounded-lg border border-gray-200 hover:border-amber-500/30 transition-colors shadow-sm">
+                <h3 className="font-semibold mb-3 text-gray-900">Categories</h3>
                 <div className="space-y-2">
                   {categoryNames.map((category) => (
                     <label
@@ -369,8 +371,8 @@ const ProductListings = () => {
               </div>
 
               {/* Price Range */}
-              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                <h3 className="font-semibold mb-3 text-gray-800">
+              <div className="bg-white p-4 rounded-lg border border-gray-200 hover:border-amber-500/30 transition-colors shadow-sm">
+                <h3 className="font-semibold mb-3 text-gray-900">
                   Price Range
                 </h3>
                 <div className="space-y-2">
@@ -384,7 +386,7 @@ const ProductListings = () => {
                         name="price"
                         checked={selectedPriceRange === range.label}
                         onChange={() => setSelectedPriceRange(range.label)}
-                        className="text-amber-600 focus:ring-amber-500"
+                        className="text-amber-600 focus:ring-amber-500 bg-gray-200 border-gray-300"
                       />
                       {range.label}
                     </label>
@@ -396,7 +398,7 @@ const ProductListings = () => {
             {/* Product Grid */}
             <div className="flex-1">
               {filteredProducts.length === 0 ? (
-                <div className="text-center py-12">
+                <div className="text-center py-12 bg-white rounded-lg border border-gray-200 shadow-sm">
                   <div className="text-gray-500 text-lg mb-4">
                     No products found
                   </div>
@@ -426,32 +428,45 @@ const ProductListings = () => {
                     return (
                       <div
                         key={product._id}
-                        className="bg-white rounded-xl shadow-lg border border-amber-100 overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
+                        className={`bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-amber-500/50 hover:shadow-lg transition-all duration-300 cursor-pointer group ${
+                          currentUnit.stock === 0 ? "grayscale opacity-75" : ""
+                        }`}
                       >
                         <div
-                          className="relative aspect-[16/9] overflow-hidden group"
-                          onClick={() => handleProductClick(product._id)}
+                          className="relative aspect-[16/9] overflow-hidden bg-gray-100"
+                          onClick={() =>
+                            currentUnit.stock > 0 &&
+                            handleProductClick(product._id)
+                          }
                         >
                           <img
                             src={product.image}
                             alt={product.name}
                             className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
                           />
-                          {currentUnit.discount > 0 && (
-                            <div className="absolute top-2 left-2">
-                              <span className="bg-green-600 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md">
-                                {currentUnit.discount}% OFF
+                          {currentUnit.stock === 0 ? (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                Out of Stock
                               </span>
                             </div>
+                          ) : (
+                            currentUnit.discount > 0 && (
+                              <div className="absolute top-2 left-2">
+                                <span className="bg-green-600 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md">
+                                  {currentUnit.discount}% OFF
+                                </span>
+                              </div>
+                            )
                           )}
                         </div>
 
                         <div className="p-4 space-y-3">
                           <div>
-                            <h3 className="font-semibold text-lg text-gray-800 line-clamp-1">
+                            <h3 className="font-semibold text-lg text-gray-900 line-clamp-1">
                               {product.name}
                             </h3>
-                            <p className="text-xs text-gray-600 line-clamp-2 mt-0.5">
+                            <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">
                               {product.description}
                             </p>
                           </div>
@@ -469,7 +484,7 @@ const ProductListings = () => {
                                           [product._id]: Number(e.target.value),
                                         })
                                       }
-                                      className="w-full p-2 pl-3 pr-8 text-sm border border-amber-200 rounded-lg appearance-none bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-200 transition-all text-gray-700"
+                                      className="w-full p-2 pl-3 pr-8 text-sm bg-gray-50 border border-gray-200 text-gray-900 rounded-lg appearance-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 transition-all"
                                     >
                                       {product.units.map((unit, index) => (
                                         <option key={index} value={index}>
@@ -477,10 +492,10 @@ const ProductListings = () => {
                                         </option>
                                       ))}
                                     </select>
-                                    <ChevronDownIcon className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-600 pointer-events-none" />
+                                    <ChevronDownIcon className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-500 pointer-events-none" />
                                   </>
                                 ) : (
-                                  <div className="p-2 text-sm bg-amber-50/50 rounded-lg border border-amber-200">
+                                  <div className="p-2 text-sm bg-gray-50 rounded-lg border border-gray-200 text-gray-700">
                                     {currentUnit.quantity} {currentUnit.unit}
                                   </div>
                                 )}
@@ -502,23 +517,23 @@ const ProductListings = () => {
                               </div>
                             </div>
 
-                            <div className="flex items-center justify-between bg-amber-50/50 p-2 rounded-lg">
+                            <div className="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
                               <div className="flex items-center gap-3">
                                 <button
                                   onClick={() =>
                                     updateQuantity(product._id, -1)
                                   }
-                                  className="w-7 h-7 flex items-center justify-center rounded-full bg-white border border-amber-300 text-amber-600 hover:bg-amber-100 transition-colors disabled:opacity-50"
+                                  className="w-7 h-7 flex items-center justify-center rounded-full bg-white border border-gray-200 text-amber-600 hover:border-amber-500 transition-colors disabled:opacity-50"
                                   disabled={quantity <= 1}
                                 >
                                   -
                                 </button>
-                                <span className="text-sm font-medium text-gray-700 min-w-[20px] text-center">
+                                <span className="text-sm font-medium text-gray-900 min-w-[20px] text-center">
                                   {quantity}
                                 </span>
                                 <button
                                   onClick={() => updateQuantity(product._id, 1)}
-                                  className="w-7 h-7 flex items-center justify-center rounded-full bg-white border border-amber-300 text-amber-600 hover:bg-amber-100 transition-colors disabled:opacity-50"
+                                  className="w-7 h-7 flex items-center justify-center rounded-full bg-white border border-gray-200 text-amber-600 hover:border-amber-500 transition-colors disabled:opacity-50"
                                   disabled={quantity >= currentUnit.stock}
                                 >
                                   +
@@ -535,21 +550,19 @@ const ProductListings = () => {
                             </div>
                           </div>
 
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() =>
-                                handleAddToCart(
-                                  product,
-                                  selectedUnitIndex,
-                                  quantity
-                                )
-                              }
-                              className="flex-1 bg-amber-600 text-white rounded-lg py-2 text-sm hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                              disabled={!currentUnit.stock}
-                            >
-                              Add to Cart
-                            </button>
-                          </div>
+                          <button
+                            onClick={() =>
+                              handleAddToCart(
+                                product,
+                                selectedUnitIndex,
+                                quantity
+                              )
+                            }
+                            className="w-full bg-amber-600 text-white rounded-lg py-2 text-sm hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                            disabled={!currentUnit.stock}
+                          >
+                            Add to Cart
+                          </button>
                         </div>
                       </div>
                     );

@@ -7,6 +7,8 @@ import Footer from "@/components/user/Footer";
 import { loadRazorpay } from '@/lib/razorpay'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
+import razor from "../../../public/assets/razor.png"
+import Image from "next/image";
 
 interface CartItem {
   productId: string;
@@ -274,7 +276,7 @@ export default function CheckoutPage() {
   return (
     <div>
       <Navbar />
-    <div className="min-h-screen bg-gray-50">
+    <div className=" pt-20 min-h-screen bg-gray-50">
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid gap-8 lg:grid-cols-2">
@@ -453,7 +455,10 @@ export default function CheckoutPage() {
                               <p className="text-sm text-gray-500">Pay securely with Razorpay</p>
                             </div>
                           </div>
-                          <img src="/razorpay-logo.svg" alt="Razorpay" className="h-6" />
+                          <Image src={razor} alt="Razorpay" 
+                          width={100}
+                          height={100}
+                          className=" object-fill" />
                         </div>
                       </label>
 
