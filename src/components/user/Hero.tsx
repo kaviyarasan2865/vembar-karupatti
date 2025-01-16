@@ -50,11 +50,11 @@ const Hero = () => {
               </div>
             </div>
           </div>
-          <div className="w-full lg:w-1/2">
+          <div className="w-full lg:w-1/2 pl-10">
             <div className="relative">
               <div className="absolute -inset-1 bg-amber-500 rounded-full blur-3xl opacity-30"></div>
               <div className="relative aspect-square rounded-full bg-neutral-800 flex items-center justify-center">
-                <div className="text-9xl text-amber-500">
+                <div className="text-9xl text-amber-500 ">
                   <Image src={jaggery} alt="jag" width={200} height={200} />
                 </div>
               </div>

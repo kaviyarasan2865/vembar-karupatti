@@ -428,37 +428,36 @@ const ProductListings = () => {
                     return (
                       <div
                         key={product._id}
-                        className={`bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-amber-500/50 hover:shadow-lg transition-all duration-300 cursor-pointer group ${
-                          currentUnit.stock === 0 ? "grayscale opacity-75" : ""
+                        className={`bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-amber-500/50 hover:shadow-lg transition-all duration-300 group ${
+                          currentUnit.stock === 0
+                            ? "grayscale hover:grayscale-0"
+                            : ""
                         }`}
                       >
                         <div
-                          className="relative aspect-[16/9] overflow-hidden bg-gray-100"
-                          onClick={() =>
-                            currentUnit.stock > 0 &&
-                            handleProductClick(product._id)
-                          }
+                          className="relative aspect-[16/9] overflow-hidden bg-gray-100 cursor-pointer"
+                          onClick={() => handleProductClick(product._id)}
                         >
                           <img
                             src={product.image}
                             alt={product.name}
                             className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
                           />
-                          {currentUnit.stock === 0 ? (
+                          {currentUnit.stock === 0 && (
                             <div className="absolute inset-0 flex items-center justify-center bg-black/40">
                               <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                                 Out of Stock
                               </span>
                             </div>
-                          ) : (
+                          )}
+                          {currentUnit.stock > 0 &&
                             currentUnit.discount > 0 && (
                               <div className="absolute top-2 left-2">
                                 <span className="bg-green-600 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md">
                                   {currentUnit.discount}% OFF
                                 </span>
                               </div>
-                            )
-                          )}
+                            )}
                         </div>
 
                         <div className="p-4 space-y-3">

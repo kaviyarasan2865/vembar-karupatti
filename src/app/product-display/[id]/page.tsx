@@ -1,13 +1,13 @@
-'use client'
-import Footer from '@/components/user/Footer'
-import Navbar from '@/components/user/Navbar'
-import Image from 'next/image'
-import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import ReviewSection from '@/components/user/ReviewSection'
-import { useSession } from 'next-auth/react'
-import { toast } from 'react-hot-toast'
-import { cartEventEmitter, CART_UPDATED_EVENT } from '@/cartEventEmitter';
+"use client";
+import Footer from "@/components/user/Footer";
+import Navbar from "@/components/user/Navbar";
+import Image from "next/image";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import ReviewSection from "@/components/user/ReviewSection";
+import { useSession } from "next-auth/react";
+import { toast } from "react-hot-toast";
+import { cartEventEmitter, CART_UPDATED_EVENT } from "@/cartEventEmitter";
 
 interface Unit {
   unit: string;
@@ -32,7 +32,7 @@ interface Product {
 const Page = ({ params }: { params: Promise<{ id: string }> }) => {
   const resolvedParams = React.use(params);
   const [product, setProduct] = useState<Product | null>(null);
-  const [mainImage, setMainImage] = useState('');
+  const [mainImage, setMainImage] = useState("");
   const [selectedUnit, setSelectedUnit] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,12 +43,12 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
     const fetchProduct = async () => {
       try {
         const response = await fetch(`/api/user/products/${resolvedParams.id}`);
-        if (!response.ok) throw new Error('Failed to fetch product');
+        if (!response.ok) throw new Error("Failed to fetch product");
         const data = await response.json();
         setProduct(data);
         setMainImage(data.image);
       } catch (error) {
-        console.error('Error:', error);
+        console.error("Error:", error);
       } finally {
         setIsLoading(false);
       }
@@ -65,12 +65,12 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
 
   const incrementQuantity = () => {
     if (product && quantity < product.units[selectedUnit].stock) {
-      setQuantity(prev => prev + 1);
+      setQuantity((prev) => prev + 1);
     }
   };
 
   const decrementQuantity = () => {
-    setQuantity(prev => prev > 1 ? prev - 1 : 1);
+    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,11 +87,16 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
 
   const handleAddToCart = async () => {
     if (!session) {
-      toast.error('Please login to add items to cart');
+      toast.error("Please login to add items to cart");
       return;
     }
 
-    if (!product) return;
+    if (!product || product.units[selectedUnit].stock === 0) {
+      toast.error(
+        "This product is out of stock and cannot be added to the cart."
+      );
+      return;
+    }
 
     const currentUnit = product.units[selectedUnit];
     const cartItem = {
@@ -106,36 +111,42 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
 
     try {
       // Check if the item is already in the cart
-      const cartResponse = await fetch('/api/cart');
-      if (!cartResponse.ok) throw new Error('Failed to fetch cart');
+      const cartResponse = await fetch("/api/cart");
+      if (!cartResponse.ok) throw new Error("Failed to fetch cart");
       const cartData = await cartResponse.json();
       const existingItem = cartData.find(
-        (item: any) => item.productId === cartItem.productId && item.unitIndex === cartItem.unitIndex
+        (item: any) =>
+          item.productId === cartItem.productId &&
+          item.unitIndex === cartItem.unitIndex
       );
 
       if (existingItem) {
-        toast.error('Product already exists in the cart. Please visit the cart.');
+        toast.error(
+          "Product already exists in the cart. Please visit the cart."
+        );
         return;
       }
 
-      const response = await fetch('/api/cart', {
-        method: 'POST',
+      const response = await fetch("/api/cart", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(cartItem),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to add item to cart');
+        throw new Error(errorData.error || "Failed to add item to cart");
       }
 
       cartEventEmitter.emit(CART_UPDATED_EVENT); // Add this line
-      toast.success('Item added to cart');
+      toast.success("Item added to cart");
     } catch (error) {
-      console.error('Add to cart error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to add item to cart');
+      console.error("Add to cart error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to add item to cart"
+      );
     }
   };
 
@@ -166,7 +177,7 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
   const thumbnails = [
     product.image,
     ...(product.image2 ? [product.image2] : []),
-    ...(product.image3 ? [product.image3] : [])
+    ...(product.image3 ? [product.image3] : []),
   ];
 
   const currentUnit = product.units[selectedUnit];
@@ -180,14 +191,14 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
           <div>
             <div className="relative w-full h-[350px] mb-4 bg-gray-100">
               <Image
-                src={mainImage || '/placeholder.jpg'}
+                src={mainImage || "/placeholder.jpg"}
                 alt={product.name}
                 fill
                 className="object-cover rounded-lg"
                 priority
                 onError={(e: any) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/placeholder.jpg';
+                  target.src = "/placeholder.jpg";
                 }}
               />
               {currentUnit.discount > 0 && (
@@ -204,13 +215,13 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
                   onClick={() => handleImageSwap(img)}
                 >
                   <Image
-                    src={img || '/placeholder.jpg'}
+                    src={img || "/placeholder.jpg"}
                     alt={`${product.name} thumbnail ${index + 1}`}
                     fill
                     className="object-cover rounded-lg"
                     onError={(e: any) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = '/placeholder.jpg';
+                      target.src = "/placeholder.jpg";
                     }}
                   />
                 </div>
@@ -244,7 +255,11 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
               <span className="text-2xl font-bold">₹{currentUnit.price}</span>
               {currentUnit.discount > 0 && (
                 <span className="ml-2 text-gray-500 line-through">
-                  ₹{calculateOriginalPrice(currentUnit.price, currentUnit.discount)}
+                  ₹
+                  {calculateOriginalPrice(
+                    currentUnit.price,
+                    currentUnit.discount
+                  )}
                 </span>
               )}
             </div>
@@ -281,15 +296,19 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
 
             {/* Action Buttons */}
             <div className="flex space-x-4 mb-8">
-              <button 
-                className="px-6 py-2 border border-amber-600 rounded-full hover:bg-amber-50"
+              <button
+                className={`px-6 py-2 border border-amber-600 rounded-full hover:bg-amber-50 ${
+                  currentUnit.stock === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-amber-600 text-white"
+                }`}
                 onClick={handleAddToCart}
-                disabled={!product || isLoading}
+                disabled={currentUnit.stock === 0}
               >
                 Add to Cart
               </button>
               <button
-                onClick={() => router.push('/cart-page')}
+                onClick={() => router.push("/cart-page")}
                 className="px-6 py-2 bg-amber-600 text-white border border-amber-600 rounded-full hover:bg-amber-700"
               >
                 Buy Now
@@ -302,7 +321,9 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
               <ul className="space-y-2">
                 <li className="flex items-center space-x-2">
                   <span className="w-1.5 h-1.5 bg-amber-800 rounded-full"></span>
-                  <span>Unit: {currentUnit.quantity} {currentUnit.unit}</span>
+                  <span>
+                    Unit: {currentUnit.quantity} {currentUnit.unit}
+                  </span>
                 </li>
                 <li className="flex items-center space-x-2">
                   <span className="w-1.5 h-1.5 bg-amber-800 rounded-full"></span>
