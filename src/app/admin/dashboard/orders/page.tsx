@@ -1,13 +1,9 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { DataTable } from 'primereact/datatable'
-import { Column } from 'primereact/column'
-import { Button } from 'primereact/button'
 import { Toast } from 'primereact/toast'
 import { useRef } from 'react'
-import { Dialog } from 'primereact/dialog'
-import { Package, Truck, CheckCircle, XCircle, Clock, Eye, ShoppingBag, MapPin, CreditCard, Search, ArrowUp, ArrowDown, Plus } from 'lucide-react'
+import { Package, Truck, CheckCircle, XCircle, Clock, Eye, ShoppingBag, MapPin, CreditCard, Search, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react'
 
 // Interfaces
 interface OrderItem {
@@ -61,7 +57,8 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [selectedOrders, setSelectedOrders] = useState<Order[]>([])
   const toast = useRef<Toast>(null)
-  const [dateRange, setDateRange] = useState('jan-1')
+  const [currentPage, setCurrentPage] = useState(1)
+  const ordersPerPage = 10
 
   // Status configurations
   const statusConfig = {
@@ -227,6 +224,86 @@ export default function OrdersPage() {
       </span>
     )
   }
+  // Pagination calculation
+  const paginatedOrders = useMemo(() => {
+    const sortedOrders = [...filteredOrders].sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+    const startIndex = (currentPage - 1) * ordersPerPage
+    return sortedOrders.slice(startIndex, startIndex + ordersPerPage)
+  }, [filteredOrders, currentPage])
+
+  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage)
+
+  const PaginationControls = () => (
+    <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+      <div className="flex flex-1 justify-between sm:hidden">
+        <button
+          onClick={() => setCurrentPage(page => Math.max(1, page - 1))}
+          disabled={currentPage === 1}
+          className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Previous
+        </button>
+        <button
+          onClick={() => setCurrentPage(page => Math.min(totalPages, page + 1))}
+          disabled={currentPage === totalPages}
+          className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Next
+        </button>
+      </div>
+      <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm text-gray-700">
+            Showing{' '}
+            <span className="font-medium">
+              {Math.min((currentPage - 1) * ordersPerPage + 1, filteredOrders.length)}
+            </span>{' '}
+            to{' '}
+            <span className="font-medium">
+              {Math.min(currentPage * ordersPerPage, filteredOrders.length)}
+            </span>{' '}
+            of{' '}
+            <span className="font-medium">{filteredOrders.length}</span> results
+          </p>
+        </div>
+        <div>
+          <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+            <button
+              onClick={() => setCurrentPage(page => Math.max(1, page - 1))}
+              disabled={currentPage === 1}
+              className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="sr-only">Previous</span>
+              <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+            </button>
+            {[...Array(totalPages)].map((_, idx) => (
+              <button
+                key={idx + 1}
+                onClick={() => setCurrentPage(idx + 1)}
+                className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+                  currentPage === idx + 1
+                    ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
+                    : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
+                }`}
+              >
+                {idx + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage(page => Math.min(totalPages, page + 1))}
+              disabled={currentPage === totalPages}
+              className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="sr-only">Next</span>
+              <ChevronRight className="h-5 w-5" aria-hidden="true" />
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+  )
 
 
   return (
@@ -312,7 +389,7 @@ export default function OrdersPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredOrders.map((order) => (
+              {paginatedOrders.map((order) => (
                 <tr key={order._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">#{order._id.slice(-4)}</div>
@@ -345,6 +422,7 @@ export default function OrdersPage() {
             </tbody>
           </table>
         </div>
+        <PaginationControls />
       </div>
 
       {/* Order Details Modal */}
