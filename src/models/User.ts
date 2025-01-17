@@ -2,15 +2,6 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
-interface Address {
-  firstName: string;
-  lastName: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-}
-
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -58,16 +49,8 @@ const userSchema = new mongoose.Schema({
     type: String,
     },
   address: {
-    type: {
-      firstName: String,
-      lastName: String,
-      address: String,
-      city: String,
-      state: String,
-      zipCode: String,
+    type: String,
     },
-    required: false,
-  },
     city:{
       type: String,
     },
