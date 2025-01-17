@@ -1,10 +1,15 @@
-export function loadRazorpay(): Promise<any> {
-  return new Promise((resolve) => {
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => {
-      resolve((window as any).Razorpay);
-    };
-    document.body.appendChild(script);
+import Razorpay from 'razorpay';
+
+interface RazorpayOptions {
+  key_id: string;
+  key_secret: string;
+}
+
+const initializeRazorpay = (options: RazorpayOptions): Razorpay => {
+  return new Razorpay({
+    key_id: options.key_id,
+    key_secret: options.key_secret,
   });
-} 
+};
+
+export default initializeRazorpay;
