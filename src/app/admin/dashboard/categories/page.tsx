@@ -82,7 +82,7 @@ const CategoryForm = ({
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter category name"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
           <div className="space-y-2">
@@ -97,7 +97,7 @@ const CategoryForm = ({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter category description"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
           <div className="space-y-2">
@@ -109,7 +109,7 @@ const CategoryForm = ({
               name="image"
               type="file"
               accept="image/*"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
               onChange={handleFileChange}
             />
             {image && (
@@ -130,7 +130,7 @@ const CategoryForm = ({
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+              className="px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors"
             >
               {isEdit ? 'Update Category' : 'Add Category'}
             </button>
@@ -300,7 +300,7 @@ const Page = () => {
         <h1 className="text-3xl font-bold">Categories</h1>
         <button
           onClick={() => setIsFormOpen(true)}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+          className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg transition-colors"
         >
           Add Category
         </button>
