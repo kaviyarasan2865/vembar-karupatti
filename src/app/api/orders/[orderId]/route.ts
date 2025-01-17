@@ -17,6 +17,13 @@ export async function GET(
       );
     }
 
+    if (!params.orderId || params.orderId === 'undefined') {
+      return NextResponse.json(
+        { error: 'Invalid order ID' },
+        { status: 400 }
+      );
+    }
+
     await connectDB();
 
     const order = await Order.findOne({
@@ -34,7 +41,7 @@ export async function GET(
     return NextResponse.json(order);
   } catch (error) {
     console.error('Error fetching order:', error);
-    return NextResponse.json(
+    return NextResponse.json( 
       { error: 'Failed to fetch order details' },
       { status: 500 }
     );

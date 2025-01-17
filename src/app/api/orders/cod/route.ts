@@ -38,6 +38,9 @@ export async function POST(req: Request) {
       total: orderData.total,
       orderStatus: "pending",
       paymentMethod: "cod",
+      paymentDetails: {
+        method: "cod"
+      },
       createdAt: new Date(),
     });
 
@@ -62,7 +65,7 @@ export async function POST(req: Request) {
       { $set: { items: [] } }
     );
 
-    return NextResponse.json({ success: true, orderId: order.insertedId });
+    return NextResponse.json({ success: true, orderId: order._id });
   } catch (error) {
     console.error("Error creating COD order:", error);
     return NextResponse.json(
