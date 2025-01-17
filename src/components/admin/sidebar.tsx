@@ -66,16 +66,16 @@ export default function Sidebar({
       icon: ListOrdered,
       label: 'Orders'
     },
-    {
-      href: '/admin/dashboard/users',
-      icon: User,
-      label: 'Users'
-    },
-    {
-      href: '/admin/dashboard/cms',
-      icon: TableOfContents,
-      label: 'CMS'
-    },
+    // {
+    //   href: '/admin/dashboard/users',
+    //   icon: User,
+    //   label: 'Users'
+    // },
+    // {
+    //   href: '/admin/dashboard/cms',
+    //   icon: TableOfContents,
+    //   label: 'CMS'
+    // },
     {
       href:'/admin/dashboard/messages',
       icon:MessageSquareText,
