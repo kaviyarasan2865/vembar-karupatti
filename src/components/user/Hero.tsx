@@ -62,7 +62,7 @@ const Hero = () => {
           </div>
         </div>
       </div>
-      <div className="w-full mt-auto">
+      <div className="w-full mt-auto ">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1440 320"
