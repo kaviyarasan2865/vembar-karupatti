@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const SimpleBarChart = ({ data }) => {
   const maxValue = Math.max(...data.map(d => d.value));
@@ -77,6 +77,33 @@ const SimpleTrendLine = ({ data }) => {
 };
 
 const Dashboard = () => {
+  const [metrics, setMetrics] = useState({
+    totalProducts: 0,
+    totalCategories: 0,
+    totalOrders: 0,
+    totalRevenue: 0,
+    productsByCategory: [],
+    monthlySales: []
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await fetch('/api/admin/dashboard');
+      if (!response.ok) throw new Error('Failed to fetch dashboard data');
+      const data = await response.json();
+      setMetrics(data);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const salesData = [
     { label: 'Jan', value: 12000 },
     { label: 'Feb', value: 19000 },
@@ -107,8 +134,10 @@ const Dashboard = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
-          <div className="text-2xl font-bold text-gray-900">1,234</div>
-          <p className="text-xs text-gray-500 mt-2">+12% from last month</p>
+          <div className="text-2xl font-bold text-gray-900">
+            {loading ? '...' : metrics.totalProducts.toLocaleString()}
+          </div>
+          <p className="text-xs text-gray-500 mt-2">All active products</p>
         </div>
 
         {/* Categories Card */}
@@ -119,8 +148,10 @@ const Dashboard = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
             </svg>
           </div>
-          <div className="text-2xl font-bold text-gray-900">28</div>
-          <p className="text-xs text-gray-500 mt-2">+2 new categories</p>
+          <div className="text-2xl font-bold text-gray-900">
+            {loading ? '...' : metrics.totalCategories.toLocaleString()}
+          </div>
+          <p className="text-xs text-gray-500 mt-2">Active categories</p>
         </div>
 
         {/* Total Orders Card */}
@@ -131,8 +162,10 @@ const Dashboard = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
           </div>
-          <div className="text-2xl font-bold text-gray-900">856</div>
-          <p className="text-xs text-gray-500 mt-2">+23% from last month</p>
+          <div className="text-2xl font-bold text-gray-900">
+            {loading ? '...' : metrics.totalOrders.toLocaleString()}
+          </div>
+          <p className="text-xs text-gray-500 mt-2">Total orders received</p>
         </div>
 
         {/* Revenue Card */}
@@ -143,8 +176,10 @@ const Dashboard = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div className="text-2xl font-bold text-gray-900">$121,000</div>
-          <p className="text-xs text-gray-500 mt-2">+18% from last month</p>
+          <div className="text-2xl font-bold text-gray-900">
+            {loading ? '...' : `₹${metrics.totalRevenue.toLocaleString()}`}
+          </div>
+          <p className="text-xs text-gray-500 mt-2">Total revenue generated</p>
         </div>
       </div>
 
@@ -153,13 +188,25 @@ const Dashboard = () => {
         {/* Monthly Sales Chart */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-6">Monthly Sales</h3>
-          <SimpleTrendLine data={salesData} />
+          {loading ? (
+            <div className="h-48 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            </div>
+          ) : (
+            <SimpleTrendLine data={metrics.monthlySales} />
+          )}
         </div>
 
         {/* Products by Category Chart */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-6">Products by Category</h3>
-          <SimpleBarChart data={categoryData} />
+          {loading ? (
+            <div className="h-48 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            </div>
+          ) : (
+            <SimpleBarChart data={metrics.productsByCategory} />
+          )}
         </div>
       </div>
     </div>
