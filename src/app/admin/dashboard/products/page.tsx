@@ -263,7 +263,7 @@ const Page = () => {
                   onChange={handleInputChange}
                   maxLength={100}
                   required
-                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
   
@@ -274,7 +274,7 @@ const Page = () => {
                   value={formData.category}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
                   <option value="">Select Category</option>
                   {categories.map((category) => (
@@ -294,7 +294,7 @@ const Page = () => {
                   required
                   maxLength={1000}
                   rows={3}
-                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
             </div>
@@ -306,7 +306,7 @@ const Page = () => {
                 <button
                   type="button"
                   onClick={addUnit}
-                  className="text-blue-500 hover:text-blue-600"
+                  className="text-amber-500 hover:text-amber-600"
                 >
                   + Add Unit
                 </button>
@@ -320,7 +320,7 @@ const Page = () => {
                       value={unit.unit}
                       onChange={(e) => handleUnitChange(index, 'unit', e.target.value)}
                       required
-                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                     >
                       {unitTypes.map((type) => (
                         <option key={type} value={type}>
@@ -338,7 +338,7 @@ const Page = () => {
                       onChange={(e) => handleUnitChange(index, 'quantity', e.target.value)}
                       min="1"
                       required
-                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
   
@@ -351,7 +351,7 @@ const Page = () => {
                       min="0"
                       step="0.01"
                       required
-                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
   
@@ -363,7 +363,7 @@ const Page = () => {
                       onChange={(e) => handleUnitChange(index, 'stock', e.target.value)}
                       min="0"
                       required
-                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
   
@@ -375,7 +375,7 @@ const Page = () => {
                       onChange={(e) => handleUnitChange(index, 'discount', e.target.value)}
                       min="0"
                       max="100"
-                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
   
@@ -413,7 +413,7 @@ const Page = () => {
                   onChange={handleInputChange}
                   accept="image/*"
                   required={!editMode}
-                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
   
@@ -431,7 +431,7 @@ const Page = () => {
                   name="image2"
                   onChange={handleInputChange}
                   accept="image/*"
-                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
   
@@ -449,7 +449,7 @@ const Page = () => {
                   name="image3"
                   onChange={handleInputChange}
                   accept="image/*"
-                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
             </div>
@@ -467,7 +467,7 @@ const Page = () => {
             </button>
             <button
               onClick={handleSubmit}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors"
+              className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-md transition-colors"
             >
               {editMode ? 'Update Product' : 'Add Product'}
             </button>
@@ -488,7 +488,7 @@ const Page = () => {
                 setFormData(initialFormData);
                 setFormOpen(true);
               }}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+              className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg transition-colors"
             >
               Add Products
             </button>
