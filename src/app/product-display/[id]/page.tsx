@@ -297,7 +297,7 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
             {/* Action Buttons */}
             <div className="flex space-x-4 mb-8">
               <button
-                className={`px-6 py-2 border border-amber-600 rounded-full hover:bg-amber-50 ${
+                className={`px-6 py-2 bg-amber-600 text-white border border-amber-600 rounded-full hover:bg-amber-700 ${
                   currentUnit.stock === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-amber-600 text-white"
