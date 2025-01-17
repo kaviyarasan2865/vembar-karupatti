@@ -7,7 +7,7 @@ import { signIn } from 'next-auth/react'
 import Navbar from '@/components/user/Navbar'
 import loginImage from '../../../public/assets/login1.png'
 import Footer from '@/components/user/Footer'
-
+import Image from 'next/image';
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -171,7 +171,7 @@ export default function Login() {
                 disabled={status === 'loading'}
                 className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg border border-gray-300 shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+                <Image src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
                 <span className="text-sm font-medium text-gray-700">Sign in with Google</span>
               </button>
             </form>
@@ -196,7 +196,7 @@ export default function Login() {
         {/* Right side - Image */}
         <div className="w-1/2 bg-gray-100">
           <div className="h-screen relative">
-            <img
+            <Image
               src={loginImage.src}
               alt="Login"
               className="object-cover h-screen w-full"

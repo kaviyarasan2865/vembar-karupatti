@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { Toast } from 'primereact/toast'
 import { useRef } from 'react'
 import { Package, Truck, CheckCircle, XCircle, Clock, Eye, ShoppingBag, MapPin, CreditCard, Search, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react'
-
+import Image from 'next/image';
 // Interfaces
 interface OrderItem {
   name: string
@@ -454,7 +454,7 @@ export default function OrdersPage() {
                           <div key={index} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
                             <div className="flex items-center gap-4">
                               {item.image && (
-                                <img 
+                                <Image 
                                   src={item.image} 
                                   alt={item.name} 
                                   className="w-16 h-16 object-cover rounded-lg"

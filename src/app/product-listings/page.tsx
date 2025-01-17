@@ -6,6 +6,7 @@ import Footer from "@/components/user/Footer";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { cartEventEmitter, CART_UPDATED_EVENT } from "@/cartEventEmitter";
+import Image from 'next/image';
 
 interface Unit {
   unit: string;
@@ -438,7 +439,7 @@ const ProductListings = () => {
                           className="relative aspect-[16/9] overflow-hidden bg-gray-100 cursor-pointer"
                           onClick={() => handleProductClick(product._id)}
                         >
-                          <img
+                          <Image
                             src={product.image}
                             alt={product.name}
                             className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"

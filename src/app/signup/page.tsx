@@ -8,7 +8,7 @@ import { signIn } from 'next-auth/react'
 import Footer from '@/components/user/Footer'
 import Navbar from '@/components/user/Navbar'
 import signupImage from '../../../public/assets/signupImage.png'
-
+import Image from 'next/image';
 
 // Define the password validation types
 type PasswordCheck = {
@@ -279,7 +279,7 @@ export default function Signup() {
       <Navbar />
       <div className='bg-amber-200 h-screen flex flex-row m-0 p-0'>
         <div className='w-1/2 flex items-center justify-center bg-amber-200'>
-        <img src={signupImage.src} alt='signup' className='w-full h-full object-cover' />
+        <Image src={signupImage.src} alt='signup' className='w-full h-full object-cover' />
         </div>
         <div className="w-1/2 flex items-center justify-center bg-amber-200">
           <div className="w-full max-w-md space-y-8">
@@ -345,7 +345,7 @@ export default function Signup() {
               onClick={handleGoogleSignIn}
               className="w-full py-2 border rounded-lg hover:bg-gray-50 flex items-center justify-center gap-2 bg-white"
             >
-              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+              <Image src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
               Continue with Google
             </button>
 

@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-
+import Image from 'next/image';
 // Delete Confirmation Modal Component
 const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, productName }) => {
   if (!isOpen) return null;
@@ -401,7 +401,7 @@ const Page = () => {
                   Main Image {!editMode && '*'}
                 </label>
                 {editMode && formData.currentImage && (
-                  <img
+                  <Image
                     src={formData.currentImage}
                     alt="Current main image"
                     className="w-20 h-20 object-cover rounded mb-2"
@@ -420,7 +420,7 @@ const Page = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Image 2</label>
                 {editMode && formData.currentImage2 && (
-                  <img
+                  <Image
                     src={formData.currentImage2}
                     alt="Current second image"
                     className="w-20 h-20 object-cover rounded mb-2"
@@ -438,7 +438,7 @@ const Page = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Image 3</label>
                 {editMode && formData.currentImage3 && (
-                  <img
+                  <Image
                     src={formData.currentImage3}
                     alt="Current third image"
                     className="w-20 h-20 object-cover rounded mb-2"
@@ -515,7 +515,7 @@ const Page = () => {
                         {categories.find(cat => cat.id === product.category)?.name || 'N/A'}
                       </td>
                       <td className="py-4">
-                        <img
+                        <Image
                           src={product.image}
                           alt={product.name}
                           className="w-16 h-16 object-cover rounded"

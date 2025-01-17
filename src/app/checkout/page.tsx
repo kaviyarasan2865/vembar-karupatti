@@ -523,7 +523,7 @@ export default function CheckoutPage() {
                   {orderSummary.items.map((item, index) => (
                     <div key={`${item.productId}-${item.unitIndex}`} className="flex items-start space-x-4">
                       <div className="relative h-16 w-16 overflow-hidden rounded-lg border">
-                        <img
+                        <Image
                           src={item.image || "/placeholder.svg"}
                           alt={item.name}
                           className="object-cover"

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import Image from 'next/image';
 
 // Delete Confirmation Modal Component
 const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, categoryName }) => {
@@ -113,7 +114,7 @@ const CategoryForm = ({
               onChange={handleFileChange}
             />
             {image && (
-              <img
+              <Image
                 src={image}
                 alt="Preview"
                 className="mt-2 w-32 h-32 object-cover rounded"
@@ -323,7 +324,7 @@ const Page = () => {
                   <td className="py-4 font-medium">{category.name}</td>
                   <td className="py-4">{category.description}</td>
                   <td className="py-4">
-                    <img
+                    <Image
                       src={category.image}
                       alt={category.name}
                       className="w-16 h-16 object-cover rounded"
