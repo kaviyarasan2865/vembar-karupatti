@@ -44,11 +44,10 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
-) {
-  const { id } = params;
-  
+): Promise<NextResponse> {
   try {
     await connectDB();
+    const { id } = params;
     
     const contact = await Contact.findByIdAndDelete(id);
     
@@ -59,7 +58,7 @@ export async function DELETE(
       );
     }
 
-    return NextResponse.json({ message: "Contact deleted successfully", contact });
+    return NextResponse.json(contact);
   } catch (error) {
     console.error(error);
     return NextResponse.json(
