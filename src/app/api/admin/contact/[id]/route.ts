@@ -41,13 +41,19 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
+type Props = {
+  params: {
+    id: string
+  }
+}
+
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  props: Props
 ) {
   try {
     await connectDB();
-    const { id } = params;
+    const { id } = props.params;
     
     const contact = await Contact.findByIdAndDelete(id);
     
