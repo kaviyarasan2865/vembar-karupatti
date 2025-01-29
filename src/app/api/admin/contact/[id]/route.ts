@@ -2,19 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import Contact from '@/models/contact';
 import connectDB from '@/lib/mongodb';
 
+type RouteContext = {
+  params: {
+    id: string;
+  };
+};
+
 export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<Response> {
+  _req: NextRequest,
+  { params }: RouteContext
+): Promise<NextResponse> {
   try {
     await connectDB();
     const { id } = params;
-
+    
     const contact = await Contact.findByIdAndDelete(id);
-
+    
     if (!contact) {
       return NextResponse.json(
-        { error: 'Contact not found' },
+        { error: "Contact not found" },
         { status: 404 }
       );
     }
@@ -23,7 +29,7 @@ export async function DELETE(
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: 'Failed to delete contact' },
+      { error: "Failed to delete contact" },
       { status: 500 }
     );
   }
@@ -31,11 +37,11 @@ export async function DELETE(
 
 export async function PATCH(
   _req: NextRequest,
-  context: { params: { id: string } }
-): Promise<Response> {
+  { params }: RouteContext
+): Promise<NextResponse> {
   try {
     await connectDB();
-    const { id } = context.params;
+    const { id } = params;
     
     const message = await Contact.findById(id);
     if (!message) {
