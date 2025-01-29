@@ -20,7 +20,8 @@ export async function DELETE(
     }
 
     return Response.json({ success: true, data: contact });
-  } catch (error) {
+  } catch (error: unknown) {
+    console.log(error);
     return Response.json(
       { error: "Failed to delete contact" },
       { status: 500 }
