@@ -2,61 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import Contact from '@/models/contact';
 import connectDB from '@/lib/mongodb';
 
-interface RouteSegmentConfig {
-  params: {
-    id: string;
-  };
-}
-
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteSegmentConfig
-): Promise<NextResponse> {
-  try {
-    await connectDB();
-    const { id } = params;
-    
-    console.log('Updating message ID:', id); // Debug log
-
-    // Find the message first to verify it exists
-    const message = await Contact.findById(id);
-    if (!message) {
-      console.log('Message not found:', id); // Debug log
-      return NextResponse.json(
-        { error: 'Message not found' },
-        { status: 404 }
-      );
-    }
-
-    // Update the message
-    const updatedMessage = await Contact.findByIdAndUpdate(
-      id,
-      { isViewed: true }, // Explicitly set to true
-      { 
-        new: true,
-        runValidators: true // Ensure the update follows schema validation
-      }
-    );
-
-    console.log('Updated message:', updatedMessage); // Debug log
-
-    return NextResponse.json(updatedMessage);
-  } catch (error) {
-    console.error('Error updating message:', error);
-    return NextResponse.json(
-      { error: 'Failed to update message', details: error },
-      { status: 500 }
-    );
-  }
-}
-
 export async function DELETE(
-  request: NextRequest,
-  { params }: RouteSegmentConfig
-): Promise<NextResponse> {
+  _req: NextRequest,
+  context: { params: { id: string } }
+): Promise<Response> {
   try {
     await connectDB();
-    const { id } = params;
+    const { id } = context.params;
     
     const contact = await Contact.findByIdAndDelete(id);
     
@@ -72,6 +24,41 @@ export async function DELETE(
     console.error(error);
     return NextResponse.json(
       { error: "Failed to delete contact" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  _req: NextRequest,
+  context: { params: { id: string } }
+): Promise<Response> {
+  try {
+    await connectDB();
+    const { id } = context.params;
+    
+    const message = await Contact.findById(id);
+    if (!message) {
+      return NextResponse.json(
+        { error: 'Message not found' },
+        { status: 404 }
+      );
+    }
+
+    const updatedMessage = await Contact.findByIdAndUpdate(
+      id,
+      { isViewed: true },
+      { 
+        new: true,
+        runValidators: true
+      }
+    );
+
+    return NextResponse.json(updatedMessage);
+  } catch (error) {
+    console.error('Error updating message:', error);
+    return NextResponse.json(
+      { error: 'Failed to update message', details: error },
       { status: 500 }
     );
   }
