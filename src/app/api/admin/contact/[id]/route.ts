@@ -45,9 +45,10 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const { id } = params;
+  
   try {
     await connectDB();
-    const { id } = params;
     
     const contact = await Contact.findByIdAndDelete(id);
     
@@ -58,7 +59,7 @@ export async function DELETE(
       );
     }
 
-    return NextResponse.json(contact);
+    return NextResponse.json({ message: "Contact deleted successfully", contact });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
@@ -66,4 +67,4 @@ export async function DELETE(
       { status: 500 }
     );
   }
-} 
+}
