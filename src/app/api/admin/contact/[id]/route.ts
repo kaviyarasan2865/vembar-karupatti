@@ -1,15 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import Contact from '@/models/contact';
 import connectDB from '@/lib/mongodb';
 
 // In Next.js route handlers, the params should be typed using the built-in types
 
-
-
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
-): Promise<NextResponse> {
+) {
   try {
     await connectDB();
     const { id } = await params;
@@ -17,16 +15,16 @@ export async function DELETE(
     const contact = await Contact.findByIdAndDelete(id);
     
     if (!contact) {
-      return NextResponse.json(
+      return Response.json(
         { error: "Contact not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ success: true, data: contact });
+    return Response.json({ success: true, data: contact });
   } catch (error) {
-    console.error('Error deleting contact:', error);
-    return NextResponse.json(
+    console.error(error);
+    return Response.json(
       { error: "Failed to delete contact" },
       { status: 500 }
     );
@@ -34,16 +32,16 @@ export async function DELETE(
 }
 
 export async function PATCH(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
-): Promise<NextResponse> {
+) {
   try {
     await connectDB();
     const { id } = params;
     
     const message = await Contact.findById(id);
     if (!message) {
-      return NextResponse.json(
+      return Response.json(
         { error: 'Message not found' },
         { status: 404 }
       );
@@ -58,10 +56,10 @@ export async function PATCH(
       }
     );
 
-    return NextResponse.json({ success: true, data: updatedMessage });
+    return Response.json({ success: true, data: updatedMessage });
   } catch (error) {
     console.error('Error updating message:', error);
-    return NextResponse.json(
+    return Response.json(
       { error: 'Failed to update message' },
       { status: 500 }
     );
