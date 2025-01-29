@@ -2,15 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import Contact from '@/models/contact';
 import connectDB from '@/lib/mongodb';
 
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
-
+// In Next.js route handlers, the params should be typed using the built-in types
 export async function DELETE(
   _req: NextRequest,
-  { params }: RouteContext
+  { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
     await connectDB();
@@ -25,9 +20,9 @@ export async function DELETE(
       );
     }
 
-    return NextResponse.json(contact);
+    return NextResponse.json({ success: true, data: contact });
   } catch (error) {
-    console.error(error);
+    console.error('Error deleting contact:', error);
     return NextResponse.json(
       { error: "Failed to delete contact" },
       { status: 500 }
@@ -37,7 +32,7 @@ export async function DELETE(
 
 export async function PATCH(
   _req: NextRequest,
-  { params }: RouteContext
+  { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
     await connectDB();
@@ -60,11 +55,11 @@ export async function PATCH(
       }
     );
 
-    return NextResponse.json(updatedMessage);
+    return NextResponse.json({ success: true, data: updatedMessage });
   } catch (error) {
     console.error('Error updating message:', error);
     return NextResponse.json(
-      { error: 'Failed to update message', details: error },
+      { error: 'Failed to update message' },
       { status: 500 }
     );
   }
