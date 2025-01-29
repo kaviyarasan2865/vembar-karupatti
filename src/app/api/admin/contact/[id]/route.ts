@@ -3,18 +3,18 @@ import Contact from '@/models/contact';
 import connectDB from '@/lib/mongodb';
 
 export async function DELETE(
-  _req: NextRequest,
-  context: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: { id: string } }
 ): Promise<Response> {
   try {
     await connectDB();
-    const { id } = context.params;
-    
+    const { id } = params;
+
     const contact = await Contact.findByIdAndDelete(id);
-    
+
     if (!contact) {
       return NextResponse.json(
-        { error: "Contact not found" },
+        { error: 'Contact not found' },
         { status: 404 }
       );
     }
@@ -23,7 +23,7 @@ export async function DELETE(
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Failed to delete contact" },
+      { error: 'Failed to delete contact' },
       { status: 500 }
     );
   }
