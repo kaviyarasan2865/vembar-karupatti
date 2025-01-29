@@ -23,6 +23,10 @@ const ContactForm = () => {
         throw new Error("Failed to send message");
       }
       toast.success("Successfully sent message");
+      // setName("");
+      // setEmail("");
+      // setSubject("general");
+      // setMessage("");
     } catch (error) {
       console.log(error);
       toast.error("Failed to send message");

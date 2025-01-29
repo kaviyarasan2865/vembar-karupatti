@@ -2,25 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import Contact from '@/models/contact';
 import connectDB from '@/lib/mongodb';
 
-type RouteParams = { params: { id: string } };
 export async function DELETE(
-  req: NextRequest,
-  { params }: RouteParams
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
-
   try {
     await connectDB();
+    const id = params.id;
+    
     const contact = await Contact.findByIdAndDelete(id);
-
+    
     if (!contact) {
-      return NextResponse.json({ error: 'Contact not found' }, { status: 404 });
+      return Response.json(
+        { error: "Contact not found" },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json({ success: true, data: contact });
+    return Response.json({ success: true, data: contact });
   } catch (error) {
-    console.error('Error deleting contact:', error);
-    return NextResponse.json({ error: 'Failed to delete contact' }, { status: 500 });
+    return Response.json(
+      { error: "Failed to delete contact" },
+      { status: 500 }
+    );
   }
 }
 
