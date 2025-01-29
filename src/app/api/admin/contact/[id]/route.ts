@@ -1,8 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import Contact from '@/models/contact';
 import connectDB from '@/lib/mongodb';
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+interface RouteSegmentConfig {
+  params: {
+    id: string;
+  };
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: RouteSegmentConfig
+): Promise<NextResponse> {
   try {
     await connectDB();
     const { id } = params;
@@ -42,8 +51,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: RouteSegmentConfig
 ): Promise<NextResponse> {
   try {
     await connectDB();
