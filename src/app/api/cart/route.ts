@@ -4,6 +4,16 @@ import { authOptions } from "../auth/[...nextauth]/auth";
 import connectDB from "@/lib/mongodb";
 import Cart from "@/models/Cart";
 
+interface CartItem {
+  productId: string;
+  unitIndex: number;
+  name: string;
+  image?: string;
+  quantity: number;
+  price: number;
+  stock: number;
+}
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -60,9 +70,8 @@ export async function POST(request: NextRequest) {
         throw new Error("Failed to create cart");
       }
     } else {
-      // Check if item with same productId and unitIndex already exists
       const existingItem = cart.items.find(
-        i => i.productId.toString() === item.productId && i.unitIndex === item.unitIndex
+        (i: CartItem) => i.productId.toString() === item.productId && i.unitIndex === item.unitIndex
       );
 
       if (existingItem) {
@@ -73,7 +82,7 @@ export async function POST(request: NextRequest) {
       }
 
       const existingItemIndex = cart.items.findIndex(
-        (i) => i.productId === item.productId && i.unitIndex === item.unitIndex
+        (i: CartItem) => i.productId === item.productId && i.unitIndex === item.unitIndex
       );
 
       if (existingItemIndex > -1) {
@@ -91,10 +100,10 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(cart.items, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("POST cart error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to add item to cart" },
+      { error: (error as Error).message || "Failed to add item to cart" },
       { status: 500 }
     );
   }
@@ -123,7 +132,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const itemIndex = cart.items.findIndex(
-      (i) => i.productId === productId && i.unitIndex === unitIndex
+      (i: CartItem) => i.productId === productId && i.unitIndex === unitIndex
     );
 
     if (itemIndex === -1) {
@@ -143,10 +152,10 @@ export async function DELETE(request: NextRequest) {
     }
 
     return NextResponse.json(cart.items, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("DELETE cart error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to remove item from cart" },
+      { error: (error as Error).message || "Failed to remove item from cart" },
       { status: 500 }
     );
   }

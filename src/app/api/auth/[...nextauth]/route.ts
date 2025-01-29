@@ -4,7 +4,27 @@ import GoogleProvider from 'next-auth/providers/google'
 import connectDB from '@/lib/mongodb'
 import User from '@/models/User'
 import bcrypt from 'bcryptjs'
-import { authOptions } from './auth'
+
+
+// Add these type declarations
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id?: string;
+      email?: string | null;
+      name?: string | null;
+      image?: string | null;
+      authProvider?: string;
+    }
+  }
+
+  interface User {
+    id: string;
+    email: string;
+    authProvider: string;
+  }
+}
+
 
 const handler = NextAuth({
   providers: [
@@ -82,7 +102,7 @@ const handler = NextAuth({
           if (dbUser) {
             // Update Google ID and auth provider if needed
             let needsUpdate = false;
-            let updates: any = {};
+            const updates: Record<string, string> = {};
 
             if (!dbUser.googleId || dbUser.googleId !== user.id) {
               updates.googleId = user.id;
@@ -123,7 +143,7 @@ const handler = NextAuth({
       return true;
     },
 
-    async session({ session, token }) {
+    async session({ session }) {
       if (session.user) {
         const dbUser = await User.findOne({ email: session.user.email })
         if (dbUser) {

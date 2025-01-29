@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [step, setStep] = useState(1);
   const [status, setStatus] = useState('idle');
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus('loading');
     try {
@@ -27,13 +27,14 @@ export default function LoginPage() {
         alert(data.message);
       }
     } catch (error) {
+      console.log(error);
       alert('An error occurred. Please try again.');
     } finally {
       setStatus('idle');
     }
   };
   
-  const handleVerifyOtp = async (e) => {
+  const handleVerifyOtp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus('loading');
     try {
@@ -50,6 +51,29 @@ export default function LoginPage() {
         alert(data.message);
       }
     } catch (error) {
+      console.log(error);
+      alert('An error occurred. Please try again.');
+    } finally {
+      setStatus('idle');
+    }
+  };
+
+  const handleResendOtp = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/admin/verify-credentials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.log(error);
       alert('An error occurred. Please try again.');
     } finally {
       setStatus('idle');
@@ -161,10 +185,10 @@ export default function LoginPage() {
             </button>
 
             <p className="text-center text-sm">
-              Didn't receive the code?{' '}
+              Didn&apos;t receive the code?{' '}
               <button
                 type="button"
-                onClick={handleLogin}
+                onClick={handleResendOtp}
                 className="text-blue-400 hover:text-blue-700 font-medium"
               >
                 Resend OTP

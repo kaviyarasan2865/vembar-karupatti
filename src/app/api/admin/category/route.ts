@@ -8,6 +8,7 @@ export const GET = async () => {
         const categories = await Category.find({});
         return NextResponse.json(categories);
     } catch (error) {
+        console.log(error);
         return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });
     }
 }
@@ -66,6 +67,7 @@ export const DELETE = async (req: Request) => {
 
         return NextResponse.json(category);
     } catch (error) {
+        console.log(error);
         return NextResponse.json(
             { error: "Failed to delete category" },
             { status: 500 }
@@ -101,6 +103,7 @@ export const PUT = async (req: Request) => {
 
         return NextResponse.json(category);
     } catch (error) {
+        console.log(error);
         return NextResponse.json(
             { error: "Failed to update category" },
             { status: 500 }

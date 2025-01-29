@@ -8,6 +8,7 @@ export const GET = async() =>{
         const contacts = await Contact.find({});
         return NextResponse.json(contacts);
     } catch (error) {
+        console.log(error);
         return NextResponse.json({ error: "Failed to fetch contacts" }, { status: 500 });
     }
 }
@@ -18,6 +19,7 @@ export const DELETE = async() =>{
         const contacts = await Contact.deleteMany({});
         return NextResponse.json(contacts);
     } catch (error) {
+        console.log(error);
         return NextResponse.json({ error: "Failed to delete contacts" }, { status: 500 });
     }
 }

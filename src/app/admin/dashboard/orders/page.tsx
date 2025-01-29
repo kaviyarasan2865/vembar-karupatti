@@ -37,31 +37,44 @@ interface Order {
   paymentDetails: PaymentDetails
 }
 
-interface StatusConfig {
-  color: string
-  bgColor: string
-  borderColor: string
-  icon: React.ReactNode
-  label: string
-  nextStatus?: Order['orderStatus']
-  action?: string
+// Add this interface
+interface StatusConfigType {
+  color: string;
+  bgColor: string;
+  icon: React.ReactElement;
+  label: string;
+  nextStatus?: Order['orderStatus'];
+  action?: string;
+}
+
+// Add proper typing for the StatCard props
+interface StatCardProps {
+  title: string;
+  value: number;
+  change: string;
+  isPositive: boolean;
+  icon: React.ReactNode;
+}
+
+// Add proper typing for the StatusBadge props
+interface StatusBadgeProps {
+  status: Order['orderStatus'];
 }
 
 export default function OrdersPage() {
   // State
   const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState<boolean>(true)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [showDialog, setShowDialog] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [selectedOrders, setSelectedOrders] = useState<Order[]>([])
   const toast = useRef<Toast>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const ordersPerPage = 10
+  const ordersPerPage = 5
 
   // Status configurations
-  const statusConfig = {
+  const statusConfig: Record<Order['orderStatus'], StatusConfigType> = {
     pending: {
       color: 'text-amber-500',
       bgColor: 'bg-amber-100',
@@ -125,28 +138,19 @@ export default function OrdersPage() {
   }), [orders])
 
   // Fetch orders
-  const fetchOrders = useCallback(async (retryCount = 0) => {
+  const fetchOrders = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/orders')
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-      const data = await response.json()
-      setOrders(data)
+      setLoading(true);
+      const response = await fetch('/api/admin/orders');
+      if (!response.ok) throw new Error('Failed to fetch orders');
+      const data = await response.json();
+      setOrders(data);
     } catch (error) {
-      console.error('Error fetching orders:', error)
-      if (retryCount < 3) {
-        setTimeout(() => fetchOrders(retryCount + 1), 1000 * Math.pow(2, retryCount))
-      } else {
-        toast.current?.show({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to fetch orders. Please try refreshing the page.',
-          life: 5000
-        })
-      }
+      console.error('Error fetching orders:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, [setLoading]);
 
   useEffect(() => {
     fetchOrders()
@@ -177,6 +181,7 @@ export default function OrdersPage() {
         life: 3000
       })
     } catch (error) {
+      console.error(error);
       setOrders(previousOrders)
       toast.current?.show({
         severity: 'error',
@@ -202,7 +207,7 @@ export default function OrdersPage() {
   }, [orders, searchQuery, statusFilter])
 
   // Components
-  const StatCard = ({ title, value, change, isPositive, icon }) => (
+  const StatCard: React.FC<StatCardProps> = ({ title, value, change, isPositive, icon }) => (
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-sm font-medium text-gray-500">{title}</h3>
@@ -215,7 +220,7 @@ export default function OrdersPage() {
       </div>
     </div>
   )
-  const StatusBadge = ({ status }) => {
+  const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
     const config = statusConfig[status]
     return (
       <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${config.bgColor} ${config.color}`}>
@@ -235,7 +240,7 @@ export default function OrdersPage() {
 
   const totalPages = Math.ceil(filteredOrders.length / ordersPerPage)
 
-  const PaginationControls = () => (
+  const PaginationControls: React.FC = () => (
     <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
       <div className="flex flex-1 justify-between sm:hidden">
         <button

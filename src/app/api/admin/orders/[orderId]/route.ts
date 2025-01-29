@@ -24,6 +24,7 @@ export async function PATCH(
         new TextEncoder().encode(process.env.JWT_SECRET)
       )
     } catch (error) {
+      console.log(error);
       return NextResponse.json(
         { error: 'Invalid token' },
         { status: 401 }

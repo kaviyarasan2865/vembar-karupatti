@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import logo from "../../../public/assets/logo.png";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,7 +9,6 @@ import {
   UserCircle,
   ShoppingCart,
   ShoppingBag,
-  Search,
   ChevronDown,
   LogOut,
 } from "lucide-react";
@@ -22,14 +21,14 @@ const Navbar: React.FC = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const fetchCartCount = async () => {
+  const fetchCartCount = useCallback(async () => {
     if (status === "authenticated") {
       try {
         const response = await fetch("/api/cart");
         if (response.ok) {
           const data = await response.json();
           const totalItems = data.reduce(
-            (sum: number, item: any) => sum + item.quantity,
+            (sum: number, item: { quantity: number }) => sum + item.quantity,
             0
           );
           setCartItemCount(totalItems);
@@ -40,7 +39,7 @@ const Navbar: React.FC = () => {
     } else {
       setCartItemCount(0);
     }
-  };
+  }, [status]);
 
   useEffect(() => {
     // Initial fetch
@@ -57,7 +56,7 @@ const Navbar: React.FC = () => {
     return () => {
       cartEventEmitter.off(CART_UPDATED_EVENT, handleCartUpdate);
     };
-  }, [status]);
+  }, [status, fetchCartCount]);
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: "/" });

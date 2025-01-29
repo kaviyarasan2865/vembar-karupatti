@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
 import connectDB from '@/lib/mongodb';
 import nodemailer from 'nodemailer';
 import Admin from '@/models/Admin';
 import { otpStore } from '@/lib/otpStore';
+
+interface EmailOptions {
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+}
+
 
 // Email configuration
 const transporter = nodemailer.createTransport({
@@ -17,13 +24,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-function generateOTP() {
+function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-async function sendOTP(email, otp) {
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
+async function sendOTP(email: string, otp: string): Promise<boolean> {
+  const mailOptions: EmailOptions = {
+    from: process.env.EMAIL_USER!,
     to: email,
     subject: 'Admin Login OTP',
     html: `
@@ -48,7 +55,7 @@ async function sendOTP(email, otp) {
   }
 }
 
-export async function POST(req) {
+export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
     await connectDB();

@@ -31,6 +31,7 @@ const Footer = () => {
         toast.error(data.error || "Failed to subscribe");
       }
     } catch (error) {
+      console.error(error);
       toast.error("Something went wrong. Please try again.");
     }
   };
@@ -46,7 +47,7 @@ const Footer = () => {
               Natural Jaggery
             </h3>
             <p className="text-gray-400">
-              Bringing nature's sweetness to your table with traditional wisdom
+              Bringing nature&apos;s sweetness to your table with traditional wisdom
               and modern standards.
             </p>
             <div className="flex space-x-4">

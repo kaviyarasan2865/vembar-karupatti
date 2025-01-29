@@ -2,8 +2,53 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import Image from 'next/image';
-// Delete Confirmation Modal Component
-const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, productName }) => {
+
+// Add these interfaces at the top after imports
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  image: string;
+  image2?: string;
+  image3?: string;
+  category: string;
+  isActive: boolean;
+  units: ProductUnit[];
+}
+
+interface ProductUnit {
+  unit: string;
+  quantity: number;
+  discount: number;
+  price: number;
+  stock: number;
+}
+
+interface DeleteModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  productName: string;
+}
+
+// Add this interface for form data
+interface FormData {
+  id?: string;
+  name: string;
+  description: string;
+  image: File | null;
+  image2: File | null;
+  image3: File | null;
+  currentImage?: string;
+  currentImage2?: string;
+  currentImage3?: string;
+  category: string;
+  isActive: boolean;
+  units: ProductUnit[];
+}
+
+// Update the DeleteConfirmationModal component
+const DeleteConfirmationModal: React.FC<DeleteModalProps> = ({ isOpen, onClose, onConfirm, productName }) => {
   if (!isOpen) return null;
 
   return (
@@ -11,7 +56,7 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, productName }) =>
       <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
         <h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
         <p className="text-gray-600 mb-6">
-          Are you sure you want to delete the product "{productName}"? This action cannot be undone.
+          Are you sure you want to delete the product &quot;{productName}&quot;? This action cannot be undone.
         </p>
         <div className="flex justify-end gap-3">
           <button
@@ -39,17 +84,18 @@ const Page = () => {
     fetchProducts();  
   },[]);
   
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
   const [formOpen, setFormOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
-    productId: null,
+    productId: null as string | null,
     productName: ''
   });
   
-  const initialFormData = {
+  // Update initial form data type
+  const initialFormData: FormData = {
     name: '',
     description: '',
     image: null,
@@ -66,7 +112,7 @@ const Page = () => {
     }]
   };
   
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState<FormData>(initialFormData);
 
   const unitTypes = ["pieces", "kg", "grams", "liters", "units"];
 
@@ -92,16 +138,24 @@ const Page = () => {
     }
   };
 
-
-  const handleInputChange = (e) => {
-    const { name, value, type, files } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: files ? files[0] : type === 'number' ? Number(value) : value
-    }));
+  // Fix event typing
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    if (type === 'file') {
+      const fileInput = e.target as HTMLInputElement;
+      setFormData(prev => ({
+        ...prev,
+        [name]: fileInput.files?.[0] || null
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'number' ? Number(value) : value
+      }));
+    }
   };
 
-  const handleUnitChange = (index, field, value) => {
+  const handleUnitChange = (index: number, field: keyof ProductUnit, value: string | number) => {
     setFormData(prev => {
       const newUnits = [...prev.units];
       newUnits[index] = {
@@ -125,7 +179,7 @@ const Page = () => {
     }));
   };
 
-  const removeUnit = (index) => {
+  const removeUnit = (index: number) => {
     if (formData.units.length > 1) {
       setFormData(prev => ({
         ...prev,
@@ -134,7 +188,7 @@ const Page = () => {
     }
   };
 
-  const handleEdit = (product) => {
+  const handleEdit = (product: Product) => {
     setEditMode(true);
     setFormData({
       id: product._id,
@@ -153,7 +207,7 @@ const Page = () => {
     setFormOpen(true);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
@@ -162,7 +216,7 @@ const Page = () => {
       formDataToSend.append('description', formData.description);
       formDataToSend.append('category', formData.category);
       formDataToSend.append('units', JSON.stringify(formData.units));
-      formDataToSend.append('isActive', formData.isActive);
+      formDataToSend.append('isActive', formData.isActive.toString());
       
       if (formData.image) formDataToSend.append('image', formData.image);
       if (formData.image2) formDataToSend.append('image2', formData.image2);
@@ -171,7 +225,7 @@ const Page = () => {
       const url = '/api/admin/product';
       const method = editMode ? 'PUT' : 'POST';
       
-      if (editMode) {
+      if (editMode && formData.id) {
         formDataToSend.append('id', formData.id);
       }
 
@@ -197,7 +251,7 @@ const Page = () => {
     }
   };
 
-  const handleDeleteClick = (product) => {
+  const handleDeleteClick = (product:Product) => {
     setDeleteModal({
       isOpen: true,
       productId: product._id,
@@ -403,6 +457,7 @@ const Page = () => {
                 {editMode && formData.currentImage && (
                   <Image
                     src={formData.currentImage}
+                    width={20} height={20}
                     alt="Current main image"
                     className="w-20 h-20 object-cover rounded mb-2"
                   />
@@ -422,6 +477,7 @@ const Page = () => {
                 {editMode && formData.currentImage2 && (
                   <Image
                     src={formData.currentImage2}
+                    width={20} height={20}
                     alt="Current second image"
                     className="w-20 h-20 object-cover rounded mb-2"
                   />
@@ -440,6 +496,7 @@ const Page = () => {
                 {editMode && formData.currentImage3 && (
                   <Image
                     src={formData.currentImage3}
+                    width={20} height={20}
                     alt="Current third image"
                     className="w-20 h-20 object-cover rounded mb-2"
                   />
@@ -517,6 +574,7 @@ const Page = () => {
                       <td className="py-4">
                         <Image
                           src={product.image}
+                          width={20} height={20}
                           alt={product.name}
                           className="w-16 h-16 object-cover rounded"
                         />
@@ -539,7 +597,7 @@ const Page = () => {
                   ))}
                   {products.length === 0 && (
                     <tr>
-                      <td colSpan="5" className="py-8 text-center text-gray-500">
+                      <td colSpan={5} className="py-8 text-center text-gray-500">
                         No products found
                       </td>
                     </tr>

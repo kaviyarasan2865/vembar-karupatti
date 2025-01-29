@@ -5,6 +5,16 @@ import connectDB from "@/lib/mongodb";
 import Cart from "@/models/Cart";
 import mongoose from "mongoose";
 
+interface CartItem {
+  productId: string;
+  unitIndex: number;
+  name: string;
+  image?: string;
+  quantity: number;
+  price: number;
+  stock: number;
+}
+
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
@@ -46,7 +56,7 @@ export async function POST(request: NextRequest) {
       });
     } else {
       const existingItemIndex = cart.items.findIndex(
-        item => item.productId === productId && item.unitIndex === unitIndex
+        (item: CartItem) => item.productId === productId && item.unitIndex === unitIndex
       );
 
       if (existingItemIndex > -1) {
@@ -92,7 +102,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Update GET handler to use userId instead of userEmail
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -110,10 +120,10 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(cart.items);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching cart items:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to fetch cart items" },
+      { error: (error as Error).message || "Failed to fetch cart items" },
       { status: 500 }
     );
   }

@@ -1,11 +1,22 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { FiMail, FiUser, FiMessageSquare, FiCalendar, FiTrash, FiChevronDown, FiChevronRight } from 'react-icons/fi'
+import { FiMail, FiMessageSquare, FiCalendar, FiTrash } from 'react-icons/fi'
+
+// Add interface at the top after imports
+interface Message {
+  _id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  isViewed: boolean;
+  createdAt: string;
+}
 
 const MessagesPage = () => {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMessages();
@@ -27,7 +38,7 @@ const MessagesPage = () => {
     }
   };
 
-  const handleDelete = async (id, e) => {
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!confirm('Are you sure you want to delete this message?')) return;
     
@@ -46,7 +57,7 @@ const MessagesPage = () => {
     }
   };
 
-  const toggleMessage = async (messageId) => {
+  const toggleMessage = async (messageId: string) => {
     setSelectedMessage(selectedMessage === messageId ? null : messageId);
     
     try {
@@ -75,7 +86,7 @@ const MessagesPage = () => {
     }
   };
 
-  const markAsUnread = async (e, messageId) => {
+  const markAsUnread = async (e: React.MouseEvent, messageId: string) => {
     e.stopPropagation(); // Prevent message expansion
     
     try {

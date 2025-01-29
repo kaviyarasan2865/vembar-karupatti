@@ -171,7 +171,7 @@ export default function Login() {
                 disabled={status === 'loading'}
                 className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg border border-gray-300 shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                <Image src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+                <Image src="https://www.google.com/favicon.ico" alt="Google" width={20} height={20} className="w-5 h-5" />
                 <span className="text-sm font-medium text-gray-700">Sign in with Google</span>
               </button>
             </form>
@@ -184,7 +184,7 @@ export default function Login() {
                 Forgot your password?
               </button>
               <p className="text-gray-600">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link href="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
                   Sign up
                 </Link>
@@ -199,6 +199,7 @@ export default function Login() {
             <Image
               src={loginImage.src}
               alt="Login"
+              width={1000} height={1000} 
               className="object-cover h-screen w-full"
             />
           </div>
@@ -225,7 +226,7 @@ export default function Login() {
               <form onSubmit={handlePasswordReset} className="space-y-4">
                 <div>
                   <p className="text-sm text-gray-600 mb-4">
-                    Enter your email address and we'll send you a link to reset your password.
+                    Enter your email address and we&apos;ll send you a link to reset your password.
                   </p>
                   <input
                     type="email"

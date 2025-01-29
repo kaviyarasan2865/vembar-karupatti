@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [function(this: any) { 
+    required: [function(this: { authProvider: string }) { 
       return this.authProvider.includes('local'); 
     }, 'Password is required for local auth'],
     select: false

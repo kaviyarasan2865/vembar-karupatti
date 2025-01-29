@@ -28,6 +28,7 @@ export async function adminAuthMiddleware(request: NextRequest) {
     );
     return NextResponse.next();
   } catch (error) {
+    console.log(error);
     // If token is invalid, clear it and redirect to login
     const response = NextResponse.redirect(new URL('/admin/login', request.url));
     response.cookies.delete('admin_token');

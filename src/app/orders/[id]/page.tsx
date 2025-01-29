@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Navbar from '@/components/user/Navbar';
 import Footer from '@/components/user/Footer';
@@ -73,11 +73,7 @@ export default function OrderDetailsPage() {
   const [reviews, setReviews] = useState<{ [key: string]: Review }>({});
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchOrderDetails();
-  }, []);
-
-  const fetchOrderDetails = async () => {
+  const fetchOrderDetails = useCallback(async () => {
     try {
       const response = await fetch(`/api/orders/${params.id}`);
       if (!response.ok) throw new Error('Failed to fetch order details');
@@ -98,12 +94,16 @@ export default function OrderDetailsPage() {
       setOrder({ ...data, items: itemsWithReviews });
       setLoading(false);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching order details:', error);
       setLoading(false);
     }
-  };
+  }, [params.id]);
 
-  const deleteReview = async (reviewId: string, productId: string) => {
+  useEffect(() => {
+    fetchOrderDetails();
+  }, [fetchOrderDetails]);
+
+  const deleteReview = async (reviewId: string) => {
     try {
       const response = await fetch(`/api/reviews/${reviewId}`, {
         method: 'DELETE',
@@ -423,7 +423,7 @@ export default function OrderDetailsPage() {
                               <div className="flex justify-between items-start mb-4">
                                 <h4 className="text-lg font-semibold text-gray-800">Your Review</h4>
                                 <button
-                                  onClick={() => deleteReview(item.existingReview._id, item.productId)}
+                                  onClick={() => deleteReview(item.existingReview!._id)}
                                   className="text-red-600 hover:text-red-700 transition-colors duration-200 flex items-center space-x-1"
                                 >
                                   <X className="w-4 h-4" />
@@ -435,7 +435,7 @@ export default function OrderDetailsPage() {
                                   <Star
                                     key={star}
                                     className={`w-5 h-5 ${
-                                      star <= item.existingReview.rating
+                                      star <= item.existingReview!.rating
                                         ? 'text-yellow-400'
                                         : 'text-gray-300'
                                     }`}

@@ -4,8 +4,28 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import Image from 'next/image';
 
+// Add this interface near the top of the file
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+}
+
 // Delete Confirmation Modal Component
-const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, categoryName }) => {
+interface DeleteConfirmationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  categoryName: string;
+}
+
+const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  categoryName,
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -13,7 +33,7 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, categoryName }) =
       <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
         <h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
         <p className="text-gray-600 mb-6">
-          Are you sure you want to delete the category "{categoryName}"? This action cannot be undone.
+          Are you sure you want to delete the category &quot;{categoryName}&quot;? This action cannot be undone.
         </p>
         <div className="flex justify-end gap-3">
           <button
@@ -35,7 +55,19 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, categoryName }) =
 };
 
 // Category Form Component
-const CategoryForm = ({ 
+interface CategoryFormProps {
+  isEdit: boolean;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onClose: () => void;
+  name: string;
+  setName: React.Dispatch<React.SetStateAction<string>>;
+  description: string;
+  setDescription: React.Dispatch<React.SetStateAction<string>>;
+  image: string | null;
+  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const CategoryForm: React.FC<CategoryFormProps> = ({ 
   isEdit, 
   onSubmit, 
   onClose, 
@@ -117,6 +149,7 @@ const CategoryForm = ({
               <Image
                 src={image}
                 alt="Preview"
+                width={20} height={20}
                 className="mt-2 w-32 h-32 object-cover rounded"
               />
             )}
@@ -146,14 +179,14 @@ const CategoryForm = ({
 const Page = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState(null);
-  const [categories, setCategories] = useState([]);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
-    categoryId: null,
+    categoryId: null as string | null,
     categoryName: ''
   });
 
@@ -173,7 +206,7 @@ const Page = () => {
     fetchCategories();
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formData = {
@@ -203,12 +236,12 @@ const Page = () => {
       setImage(null);
       toast.success('Category added successfully');
     } catch (error) {
-      console.error('Error creating category:', error.message);
+      console.error('Error creating category:', error);
       toast.error('Failed to add category');
     }
   };
 
-  const handleEdit = (category) => {
+  const handleEdit = (category: Category) => {
     setEditingCategory(category);
     setName(category.name);
     setDescription(category.description);
@@ -216,8 +249,10 @@ const Page = () => {
     setIsEditFormOpen(true);
   };
 
-  const handleUpdate = async (e) => {
+  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (!editingCategory) return;
 
     const formData = {
       id: editingCategory.id,
@@ -248,12 +283,12 @@ const Page = () => {
       setImage(null);
       toast.success('Category updated successfully');
     } catch (error) {
-      console.error('Error updating category:', error.message);
+      console.error('Error updating category:', error);
       toast.error('Failed to update category');
     }
   };
 
-  const handleDeleteClick = (category) => {
+  const handleDeleteClick = (category: Category) => {
     setDeleteModal({
       isOpen: true,
       categoryId: category.id,
@@ -284,12 +319,12 @@ const Page = () => {
     }
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        setImage(reader.result);
+        setImage(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -327,6 +362,7 @@ const Page = () => {
                     <Image
                       src={category.image}
                       alt={category.name}
+                      width={20} height={20}
                       className="w-16 h-16 object-cover rounded"
                     />
                   </td>

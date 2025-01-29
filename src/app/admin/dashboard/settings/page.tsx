@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Camera } from 'lucide-react'
 import Link from "next/link"
 import Image from "next/image"
@@ -13,13 +13,9 @@ export default function AdminProfile() {
     profileImage: '/placeholder.svg'
   })
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [,setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchAdminDetails()
-  }, [])
-
-  const fetchAdminDetails = async () => {
+  const fetchAdminDetails = useCallback(async () => {
     try {
       setLoading(true)
       const res = await fetch('/api/admin/profile')
@@ -36,7 +32,11 @@ export default function AdminProfile() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchAdminDetails()
+  }, [fetchAdminDetails])
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]

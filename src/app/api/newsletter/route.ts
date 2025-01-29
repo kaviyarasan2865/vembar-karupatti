@@ -21,11 +21,11 @@ export const POST = async (req: Request) => {
       { message: "Successfully subscribed to newsletter!" },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in newsletter subscription:", error);
 
     // Check for duplicate key error (code 11000)
-    if (error.code === 11000) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
       return NextResponse.json(
         { error: "This email is already subscribed to our newsletter." },
         { status: 400 }

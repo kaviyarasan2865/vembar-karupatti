@@ -29,6 +29,15 @@ interface Product {
   image3?: string;
 }
 
+interface CartItem {
+  productId: string;
+  unitIndex: number;
+  quantity: number;
+  name: string;
+  price: number;
+  stock: number;
+}
+
 const Page = ({ params }: { params: Promise<{ id: string }> }) => {
   const resolvedParams = React.use(params);
   const [product, setProduct] = useState<Product | null>(null);
@@ -47,8 +56,9 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
         const data = await response.json();
         setProduct(data);
         setMainImage(data.image);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error:", error);
+        toast.error(error instanceof Error ? error.message : "An error occurred");
       } finally {
         setIsLoading(false);
       }
@@ -115,7 +125,7 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
       if (!cartResponse.ok) throw new Error("Failed to fetch cart");
       const cartData = await cartResponse.json();
       const existingItem = cartData.find(
-        (item: any) =>
+        (item: CartItem) =>
           item.productId === cartItem.productId &&
           item.unitIndex === cartItem.unitIndex
       );
@@ -142,7 +152,7 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
 
       cartEventEmitter.emit(CART_UPDATED_EVENT); // Add this line
       toast.success("Item added to cart");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Add to cart error:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to add item to cart"
@@ -196,8 +206,8 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
                 fill
                 className="object-cover rounded-lg"
                 priority
-                onError={(e: any) => {
-                  const target = e.target as HTMLImageElement;
+                onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                  const target = e.currentTarget;
                   target.src = "/placeholder.jpg";
                 }}
               />
@@ -219,8 +229,8 @@ const Page = ({ params }: { params: Promise<{ id: string }> }) => {
                     alt={`${product.name} thumbnail ${index + 1}`}
                     fill
                     className="object-cover rounded-lg"
-                    onError={(e: any) => {
-                      const target = e.target as HTMLImageElement;
+                    onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                      const target = e.currentTarget;
                       target.src = "/placeholder.jpg";
                     }}
                   />

@@ -86,11 +86,16 @@ export default function CheckoutPage() {
       const razorpay = await loadRazorpay();
 
       // 3. Initialize payment
+      const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+      if (!razorpayKeyId) {
+        throw new Error('Razorpay key is not configured');
+      }
+
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: razorpayKeyId,
         amount: orderSummary.total * 100,
         currency: 'INR',
-        name: 'Your Store Name',
+        name: 'Vembar Karupatti',
         description: 'Purchase Description',
         order_id: order.id,
         prefill: {
@@ -249,24 +254,24 @@ export default function CheckoutPage() {
     }
   };
 
-  const updateUserDetails = async () => {
-    try {
-      const response = await fetch('/api/user/details', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ...formData,
-          zipcode: formData.zipCode
-        })
-      });
-      if (!response.ok) throw new Error("Failed to update user details");
-      console.log('User details updated successfully');
-    } catch (error) {
-      console.error('Error updating user details:', error);
-    }
-  }
+  // const updateUserDetails = async () => {
+  //   try {
+  //     const response = await fetch('/api/user/details', {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({
+  //         ...formData,
+  //         zipcode: formData.zipCode
+  //       })
+  //     });
+  //     if (!response.ok) throw new Error("Failed to update user details");
+  //     console.log('User details updated successfully');
+  //   } catch (error) {
+  //     console.error('Error updating user details:', error);
+  //   }
+  // }
   
   useEffect(()=>{
     fetchUserDetails();
@@ -520,7 +525,8 @@ export default function CheckoutPage() {
               <div className="p-6">
                 <h2 className="text-xl font-semibold">Order Summary</h2>
                 <div className="mt-6 space-y-4">
-                  {orderSummary.items.map((item, index) => (
+                  {/* {orderSummary.items.map((item, index) => ( */}
+                  {orderSummary.items.map((item) => (
                     <div key={`${item.productId}-${item.unitIndex}`} className="flex items-start space-x-4">
                       <div className="relative h-16 w-16 overflow-hidden rounded-lg border">
                         <Image

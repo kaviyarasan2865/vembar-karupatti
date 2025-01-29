@@ -2,7 +2,30 @@
 
 import React, { useState, useEffect } from 'react';
 
-const SimpleBarChart = ({ data }) => {
+// Add interfaces at the top after imports
+interface ChartDataPoint {
+  label: string;
+  value: number;
+}
+
+interface DashboardMetrics {
+  totalProducts: number;
+  totalCategories: number;
+  totalOrders: number;
+  totalRevenue: number;
+  productsByCategory: ChartDataPoint[];
+  monthlySales: ChartDataPoint[];
+}
+
+interface SimpleBarChartProps {
+  data: ChartDataPoint[];
+}
+
+interface SimpleTrendLineProps {
+  data: ChartDataPoint[];
+}
+
+const SimpleBarChart: React.FC<SimpleBarChartProps> = ({ data }) => {
   const maxValue = Math.max(...data.map(d => d.value));
   
   return (
@@ -36,7 +59,7 @@ const SimpleBarChart = ({ data }) => {
   );
 };
 
-const SimpleTrendLine = ({ data }) => {
+const SimpleTrendLine: React.FC<SimpleTrendLineProps> = ({ data }) => {
   const maxValue = Math.max(...data.map(d => d.value));
   const points = data.map((item, index) => {
     const x = 40 + (index * 50);
@@ -76,8 +99,8 @@ const SimpleTrendLine = ({ data }) => {
   );
 };
 
-const Dashboard = () => {
-  const [metrics, setMetrics] = useState({
+const Dashboard: React.FC = () => {
+  const [metrics, setMetrics] = useState<DashboardMetrics>({
     totalProducts: 0,
     totalCategories: 0,
     totalOrders: 0,
@@ -87,15 +110,11 @@ const Dashboard = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
   const fetchDashboardData = async () => {
     try {
       const response = await fetch('/api/admin/dashboard');
       if (!response.ok) throw new Error('Failed to fetch dashboard data');
-      const data = await response.json();
+      const data: DashboardMetrics = await response.json();
       setMetrics(data);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -104,21 +123,9 @@ const Dashboard = () => {
     }
   };
 
-  const salesData = [
-    { label: 'Jan', value: 12000 },
-    { label: 'Feb', value: 19000 },
-    { label: 'Mar', value: 15000 },
-    { label: 'Apr', value: 22000 },
-    { label: 'May', value: 28000 }
-  ];
-
-  const categoryData = [
-    { label: 'Electronics', value: 45 },
-    { label: 'Clothing', value: 38 },
-    { label: 'Books', value: 28 },
-    { label: 'Home', value: 25 },
-    { label: 'Sports', value: 20 }
-  ];
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
   return (
     <div className="p-6 space-y-6 bg-gray-50">

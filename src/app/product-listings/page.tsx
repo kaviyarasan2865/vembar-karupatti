@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { ChevronDownIcon, Search, SlidersHorizontal } from "lucide-react";
 import Navbar from "@/components/user/Navbar";
 import Footer from "@/components/user/Footer";
@@ -34,10 +34,15 @@ interface Product {
   image: string;
 }
 
+interface CartItem {
+  productId: string;
+  unitIndex: number;
+}
+
 const ProductListings = () => {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedUnits, setSelectedUnits] = useState<{ [key: string]: number }>(
@@ -58,12 +63,12 @@ const ProductListings = () => {
     ...new Set(products.map((product) => product.categoryName).filter(Boolean)),
   ];
 
-  const priceRanges = [
+  const priceRanges = useMemo(() => [
     { label: "Under ₹100", min: 0, max: 100 },
     { label: "₹100 - ₹500", min: 100, max: 500 },
     { label: "₹500 - ₹1000", min: 500, max: 1000 },
     { label: "Above ₹1000", min: 1000, max: Infinity },
-  ];
+  ], []);
 
   // Fetch both products and categories
   useEffect(() => {
@@ -177,7 +182,7 @@ const ProductListings = () => {
 
       const cartItems = await response.json();
       const existingItem = cartItems.find(
-        (item: any) =>
+        (item: CartItem) =>
           item.productId === product._id && item.unitIndex === unitIndex
       );
 
@@ -253,7 +258,7 @@ const ProductListings = () => {
     }
 
     setFilteredProducts(results);
-  }, [products, searchTerm, selectedCategories, selectedPriceRange]);
+  }, [products, searchTerm, selectedCategories, selectedPriceRange, priceRanges]);
 
   if (isLoading) {
     return (
@@ -343,7 +348,7 @@ const ProductListings = () => {
                     >
                       <input
                         type="checkbox"
-                        checked={selectedCategories.includes(category)}
+                        checked={selectedCategories.includes(category ?? '')}
                         onChange={(e) => {
                           if (category === "All Products") {
                             setSelectedCategories(
@@ -353,13 +358,11 @@ const ProductListings = () => {
                             setSelectedCategories((prev) => {
                               const newCategories = e.target.checked
                                 ? [
-                                    ...prev.filter((c) => c !== "All Products"),
-                                    category,
-                                  ]
-                                : prev.filter((c) => c !== category);
-                              return newCategories.length === 0
-                                ? ["All Products"]
-                                : newCategories;
+                                    ...prev.filter(c => c !== "All Products"),
+                                    category ?? '',
+                                  ].filter(Boolean)
+                                : prev.filter(c => c !== category);
+                              return newCategories.length === 0 ? ["All Products"] : newCategories;
                             });
                           }
                         }}
@@ -441,6 +444,8 @@ const ProductListings = () => {
                         >
                           <Image
                             src={product.image}
+                            width={20}
+                            height={20}
                             alt={product.name}
                             className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
                           />

@@ -35,6 +35,7 @@ export default function ProfilePage() {
       setProfile(data)
       setError(null)
     } catch (err) {
+      console.error(err)
       setError('Failed to load profile data')
     } finally {
       setIsLoading(false)
@@ -67,6 +68,7 @@ export default function ProfilePage() {
       setIsEditing(false)
       setError(null)
     } catch (err) {
+      console.error(err)
       setError('Failed to update profile')
     } finally {
       setIsSaving(false)
@@ -105,7 +107,7 @@ export default function ProfilePage() {
         <div className="flex items-center justify-between p-6 border-b">
           <h1 className="text-2xl font-bold text-gray-900">Profile Information</h1>
           <button
-            onClick={() => isEditing ? handleSubmit() : setIsEditing(true)}
+            onClick={(e) => isEditing ? handleSubmit(e) : setIsEditing(true)}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             disabled={isSaving}
           >

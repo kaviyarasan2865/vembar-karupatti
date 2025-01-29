@@ -45,7 +45,11 @@ export async function POST(req: Request) {
     });
 
     // Update stock levels using mongoose
-    const updatePromises = orderData.items.map(async (item: any) => {
+    const updatePromises = orderData.items.map(async (item: {
+      productId: string;
+      unitIndex: number;
+      quantity: number;
+    }) => {
       return Product.findByIdAndUpdate(
         item.productId,
         {

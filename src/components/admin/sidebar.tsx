@@ -5,8 +5,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from 'next/navigation'
 import logo from '../../../public/assets/logo.png'
-import { LogOut, Settings,FolderKanban, User, X ,ListOrdered,ShoppingCart,TableOfContents,ChartBarStacked,MessageSquareText} from 'lucide-react'
-import { signOut } from "next-auth/react"
+import { LogOut, Settings,FolderKanban, X ,ListOrdered,ShoppingCart,ChartBarStacked,MessageSquareText} from 'lucide-react'
+// import { signOut } from "next-auth/react"
 
 export default function Sidebar({ 
   isOpen, 
@@ -17,16 +17,16 @@ export default function Sidebar({
 }) {
   const pathname = usePathname();
 
-  const handleSignOut = async () => {
-    try {
-      await signOut({ 
-        redirect: true,
-        callbackUrl: '/' 
-      });
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
+  // const handleSignOut = async () => {
+  //   try {
+  //     await signOut({ 
+  //       redirect: true,
+  //       callbackUrl: '/' 
+  //     });
+  //   } catch (error) {
+  //     console.error('Error signing out:', error);
+  //   }
+  // };
 
   const handleLogout = async () => {
     try {

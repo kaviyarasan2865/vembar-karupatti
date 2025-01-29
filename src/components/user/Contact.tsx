@@ -24,6 +24,7 @@ const ContactForm = () => {
       }
       toast.success("Successfully sent message");
     } catch (error) {
+      console.log(error);
       toast.error("Failed to send message");
     }
   };
@@ -39,7 +40,7 @@ const ContactForm = () => {
             Get In Touch
           </h2>
           <p className="text-gray-400 mt-4">
-            Have questions? We're here to help you
+            Have questions? We&apos;re here to help you
           </p>
         </div>
 

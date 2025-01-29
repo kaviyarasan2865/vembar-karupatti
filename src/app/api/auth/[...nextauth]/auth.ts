@@ -1,6 +1,5 @@
 import { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
-import CredentialsProvider from 'next-auth/providers/credentials'
 import connectDB from '@/lib/mongodb'
 import User from '@/models/User'
 
@@ -12,7 +11,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, token }) {
+    async session({ session }) {
       if (session.user) {
         const dbUser = await User.findOne({ email: session.user.email })
         if (dbUser) {

@@ -45,7 +45,7 @@
       console.log("Current cart items:", cart.items);
   
       const initialLength = cart.items.length;
-      cart.items = cart.items.filter((item: any) => {
+      cart.items = cart.items.filter((item: { productId: { toString: () => string }, unitIndex: number }) => {
         const keepItem = !(item.productId.toString() === productId && item.unitIndex === unitIndex);
         return keepItem;
       });

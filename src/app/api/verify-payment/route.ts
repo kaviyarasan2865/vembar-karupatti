@@ -6,7 +6,17 @@ import connectDB from "@/lib/mongodb";
 import Order from "@/models/Order";
 import Cart from "@/models/Cart";
 import Product from "@/models/Product";
-import { ObjectId } from "mongodb";
+// import { ObjectId } from "mongodb";
+
+
+interface CartItem {
+  productId: string;
+  unitIndex: number;
+  quantity: number;
+  name: string;
+  price: number;
+  stock: number;
+}
 
 export async function POST(request: Request) {
   try {
@@ -67,7 +77,7 @@ export async function POST(request: Request) {
     });
 
     // Update stock levels using mongoose
-    const updatePromises = orderData.items.map(async (item: any) => {
+    const updatePromises = orderData.items.map(async (item: CartItem) => {
       return Product.findByIdAndUpdate(
         item.productId,
         {

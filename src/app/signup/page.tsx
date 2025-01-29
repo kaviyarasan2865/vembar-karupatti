@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import Footer from '@/components/user/Footer'
@@ -57,7 +57,12 @@ const OTPInput = ({ value, onChange, disabled }: {
   onChange: (value: string) => void;
   disabled?: boolean
 }) => {
-  const inputRefs = Array(6).fill(0).map(() => React.useRef<HTMLInputElement>(null));
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Initialize refs array
+  useEffect(() => {
+    inputRefs.current = Array(6).fill(null);
+  }, []);
 
   const handleChange = (index: number, digit: string) => {
     if (digit.length > 1) return;
@@ -65,13 +70,13 @@ const OTPInput = ({ value, onChange, disabled }: {
     newValue[index] = digit;
     onChange(newValue.join(''));
     if (digit && index < 5) {
-      inputRefs[index + 1].current?.focus();
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !value[index] && index > 0) {
-      inputRefs[index - 1].current?.focus();
+      inputRefs.current[index - 1]?.focus();
     }
   };
 
@@ -80,7 +85,7 @@ const OTPInput = ({ value, onChange, disabled }: {
       {Array(6).fill(0).map((_, index) => (
         <input
           key={index}
-          ref={inputRefs[index]}
+          ref={(el: HTMLInputElement | null) => { inputRefs.current[index] = el }}
           type="text"
           maxLength={1}
           value={value[index] || ''}
@@ -106,7 +111,7 @@ export default function Signup() {
   const [otpError, setOtpError] = useState('')
   const [isVerified, setIsVerified] = useState(false)
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>(validatePassword(''))
-  const [verifyStatus, setVerifyStatus] = useState('idle')
+  const [, setVerifyStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [otpMessageType, setOtpMessageType] = useState<'success' | 'error'>('error')
   const [isPasswordValid, setIsPasswordValid] = useState(false)
 
@@ -199,6 +204,7 @@ export default function Signup() {
       setOtpMessageType('success')
       setOtpError('OTP sent successfully! Please check your email.')
     } catch (error) {
+      console.log(error);
       setOtpMessageType('error')
       setOtpError('Failed to send OTP. Please try again.')
     }
@@ -279,7 +285,7 @@ export default function Signup() {
       <Navbar />
       <div className='bg-amber-200 h-screen flex flex-row m-0 p-0'>
         <div className='w-1/2 flex items-center justify-center bg-amber-200'>
-        <Image src={signupImage.src} alt='signup' className='w-full h-full object-cover' />
+        <Image src={signupImage.src} alt='signup' width={2000} height={2000} className='w-full h-full object-cover' />
         </div>
         <div className="w-1/2 flex items-center justify-center bg-amber-200">
           <div className="w-full max-w-md space-y-8">
@@ -345,7 +351,7 @@ export default function Signup() {
               onClick={handleGoogleSignIn}
               className="w-full py-2 border rounded-lg hover:bg-gray-50 flex items-center justify-center gap-2 bg-white"
             >
-              <Image src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+              <Image src="https://www.google.com/favicon.ico" alt="Google" width={20} height={20}  className="w-5 h-5" />
               Continue with Google
             </button>
 
@@ -363,7 +369,7 @@ export default function Signup() {
                 <div className="text-center">
                   <h2 className="text-xl font-semibold">Verify Your Email</h2>
                   <p className="text-gray-600 text-sm mt-2">
-                    We've sent a verification code to your email address
+                    We&apos;ve sent a verification code to your email address
                   </p>
                 </div>
 

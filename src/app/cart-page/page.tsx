@@ -42,8 +42,8 @@ export default function CartPage() {
       if (!response.ok) throw new Error("Failed to fetch cart");
       const data = await response.json();
       setItems(data);
-    } catch (error: any) {
-      setError(error.message || "Failed to fetch cart items");
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'Failed to fetch cart items');
     } finally {
       setLoading(false);
     }
@@ -111,9 +111,9 @@ export default function CartPage() {
       } else {
         throw new Error("Invalid response format from server");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Update quantity error:", error);
-      toast.error(error.message || "Failed to update quantity");
+      toast.error(error instanceof Error ? error.message : "Failed to update quantity");
       // Refresh cart items to ensure consistency
       await fetchCartItems();
     }
@@ -143,9 +143,9 @@ export default function CartPage() {
       );
       cartEventEmitter.emit(CART_UPDATED_EVENT);
       toast.success("Item removed from cart successfully");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Remove from cart error:", error);
-      toast.error(error.message || "Failed to remove item from cart");
+      toast.error(error instanceof Error ? error.message : "Failed to remove item from cart");
     }
   };
 

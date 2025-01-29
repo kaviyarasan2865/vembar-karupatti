@@ -71,7 +71,7 @@ const Aboutus = () => {
             </h2>
 
             <p className="text-gray-400 text-lg">
-              We've been dedicated to preserving the traditional art of jaggery
+              We&apos;ve been dedicated to preserving the traditional art of jaggery
               making while incorporating modern standards of quality and
               hygiene. Our journey began with a simple mission: to bring the
               purest form of natural sweetener to your table.

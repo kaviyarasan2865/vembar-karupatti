@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { Star, ImagePlus, X, Loader2 } from 'lucide-react';
@@ -36,11 +36,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchReviews();
-  }, [productId]);
 
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       const response = await fetch(`/api/user/review/${productId}`);
       if (!response.ok) throw new Error('Failed to fetch reviews');
@@ -53,7 +50,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
       toast.error('Failed to load reviews');
       setLoading(false);
     }
-  };
+  }, [productId]);
+  useEffect(() => {
+    fetchReviews();
+  }, [productId, fetchReviews]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;

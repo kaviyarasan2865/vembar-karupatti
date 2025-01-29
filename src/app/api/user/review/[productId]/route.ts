@@ -5,6 +5,11 @@ import connectDB from '@/lib/mongodb';
 import Review from '@/models/review';
 import Order from '@/models/Order';
 
+interface OrderItem {
+  productId: string | { toString(): string };
+  quantity: number;
+}
+
 export async function GET(
   request: Request,
   { params }: { params: { productId: string } }
@@ -27,11 +32,11 @@ export async function GET(
         user: session.user.id
       });
 
-      const order = await Order.findOne({
-        userId: session.user.id,
-        'items.productId': productId,
-        orderStatus: 'delivered'
-      });
+      // const order = await Order.findOne({
+      //   userId: session.user.id,
+      //   'items.productId': productId,
+      //   orderStatus: 'delivered'
+      // });
 
       userHasReviewed = Boolean(existingReview);
     }
@@ -46,8 +51,8 @@ export async function GET(
       return {
         ...review,
         userId: review.user,
-        verified: Boolean(order && order.items.some(item => 
-          item.productId.toString() === productId
+        verified: Boolean(order && order.items.some(
+          (item: OrderItem) => item.productId.toString() === productId
         ))
       };
     }));
