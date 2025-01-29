@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import Contact from '@/models/contact';
 import connectDB from '@/lib/mongodb';
 
+type RouteParams = { params: { id: string } };
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
-): Promise<NextResponse> {
-  const { params } = context;
+  { params }: RouteParams
+) {
+  const { id } = await params;
 
   try {
     await connectDB();
-    const contact = await Contact.findByIdAndDelete(params.id);
+    const contact = await Contact.findByIdAndDelete(id);
 
     if (!contact) {
       return NextResponse.json({ error: 'Contact not found' }, { status: 404 });
