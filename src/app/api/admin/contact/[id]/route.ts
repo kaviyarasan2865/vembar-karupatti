@@ -43,11 +43,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectDB();
-    const { id } = params;
+    const { id } = context.params;
     
     const contact = await Contact.findByIdAndDelete(id);
     
