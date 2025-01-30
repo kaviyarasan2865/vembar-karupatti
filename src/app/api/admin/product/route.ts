@@ -64,9 +64,10 @@ export const POST = async (req: Request) => {
       await product.save();
   
       return new Response(JSON.stringify({ success: true, product }), { status: 201 });
-    } catch (err) {
+    } catch (err: Error | unknown) {
       console.error(err);
-      return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      return new Response(JSON.stringify({ error: errorMessage }), { status: 500 });
     }
   };
   
