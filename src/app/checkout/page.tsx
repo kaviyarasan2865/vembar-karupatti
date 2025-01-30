@@ -2,38 +2,61 @@
 
 import { useEffect, useState } from "react"
 import { Check, ChevronRight, CreditCard, MapPin, Truck } from 'lucide-react'
-import Navbar from "@/components/user/Navbar";
-import Footer from "@/components/user/Footer";
+import Navbar from "@/components/user/Navbar"
+import Footer from "@/components/user/Footer"
 import { loadRazorpay } from '@/lib/razorpay'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
 import razor from "../../../public/assets/razor.png"
-import Image from "next/image";
+import Image from "next/image"
 
 interface CartItem {
-  productId: string;
-  name: string;
-  price: number;
-  quantity: number;
-  size: string;
-  color: string;
-  image: string;
-  unitIndex: number;
+  productId: string
+  name: string
+  price: number
+  quantity: number
+  size: string
+  color: string
+  image: string
+  unitIndex: number
 }
 
 interface OrderSummary {
-  items: CartItem[];
-  subtotal: number;
-  shipping: number;
-  tax: number;
-  total: number;
-
+  items: CartItem[]
+  subtotal: number
+  shipping: number
+  tax: number
+  total: number
 }
 
 interface RazorpayResponse {
-  razorpay_payment_id: string;
-  razorpay_order_id: string;
-  razorpay_signature: string;
+  razorpay_payment_id: string
+  razorpay_order_id: string
+  razorpay_signature: string
+}
+
+// Define Razorpay instance type
+interface RazorpayInstance {
+  open: () => void
+}
+
+interface RazorpayConstructor {
+  new (options: RazorpayOptions): RazorpayInstance
+}
+
+interface RazorpayOptions {
+  key: string
+  amount: number
+  currency: string
+  name: string
+  description: string
+  order_id: string
+  prefill: {
+    name: string
+    email: string
+    contact: string
+  }
+  handler: (response: RazorpayResponse) => void
 }
 
 export default function CheckoutPage() {
@@ -52,11 +75,11 @@ export default function CheckoutPage() {
   const [orderSummary, setOrderSummary] = useState<OrderSummary>({
     items: [],
     subtotal: 0,
-    shipping: 49, // Fixed shipping cost
+    shipping: 49,
     tax: 0,
     total: 0
-  });
-  const router = useRouter();
+  })
+  const router = useRouter()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -68,7 +91,6 @@ export default function CheckoutPage() {
 
   const initializeRazorpayPayment = async () => {
     try {
-      // 1. Create order on your backend
       const response = await fetch('/api/create-order', {
         method: 'POST',
         headers: {
@@ -78,20 +100,19 @@ export default function CheckoutPage() {
           amount: orderSummary.total,
           currency: 'INR',
         }),
-      });
+      })
       
-      const order = await response.json();
+      const order = await response.json()
 
-      // 2. Load Razorpay SDK
-      const razorpay = await loadRazorpay();
+      // Load Razorpay SDK with proper typing
+      const Razorpay = await loadRazorpay() as unknown as RazorpayConstructor
 
-      // 3. Initialize payment
-      const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+      const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
       if (!razorpayKeyId) {
-        throw new Error('Razorpay key is not configured');
+        throw new Error('Razorpay key is not configured')
       }
 
-      const options = {
+      const options: RazorpayOptions = {
         key: razorpayKeyId,
         amount: orderSummary.total * 100,
         currency: 'INR',
@@ -103,51 +124,49 @@ export default function CheckoutPage() {
           email: formData.email,
           contact: formData.phone,
         },
-        handler: async function (response: RazorpayResponse) {
-          try {
-            // Verify payment and create order
-            const verification = await fetch('/api/verify-payment', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature,
-                orderData: {
-                  items: orderSummary.items,
-                  shippingAddress: formData,
-                  subtotal: orderSummary.subtotal,
-                  shipping: orderSummary.shipping,
-                  tax: orderSummary.tax,
-                  total: orderSummary.total
-                }
-              }),
-            });
-
-            if (!verification.ok) {
-              throw new Error('Payment verification failed');
+        handler: function (response: RazorpayResponse) {
+          fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+              orderData: {
+                items: orderSummary.items,
+                shippingAddress: formData,
+                subtotal: orderSummary.subtotal,
+                shipping: orderSummary.shipping,
+                tax: orderSummary.tax,
+                total: orderSummary.total
+              }
+            }),
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Payment verification failed')
             }
-
-            const result = await verification.json();
-            
-            // Redirect to success page
-            router.push(`/order-success?orderId=${result.orderId}`);
-          } catch (error) {
-            console.error('Payment verification failed:', error);
-            toast.error('Payment verification failed. Please contact support.');
-          }
+            return response.json()
+          })
+          .then(result => {
+            router.push(`/order-success?orderId=${result.orderId}`)
+          })
+          .catch(error => {
+            console.error('Payment verification failed:', error)
+            toast.error('Payment verification failed. Please contact support.')
+          })
         },
-      };
+      }
 
-      const paymentObject = new razorpay(options);
-      paymentObject.open();
+      const paymentObject = new Razorpay(options)
+      paymentObject.open()
     } catch (error) {
-      console.error('Payment initialization failed:', error);
-      toast.error('Payment initialization failed. Please try again.');
+      console.error('Payment initialization failed:', error)
+      toast.error('Payment initialization failed. Please try again.')
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
