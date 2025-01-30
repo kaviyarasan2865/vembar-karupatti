@@ -6,7 +6,8 @@ import Review from '@/models/review';
 import Order from '@/models/Order';
 
 export async function GET(
-    { params }
+  request,
+  { params }
 ) {
   try {
     const { productId } = params;
