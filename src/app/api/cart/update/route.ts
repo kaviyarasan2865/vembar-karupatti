@@ -4,7 +4,7 @@ import { authOptions } from "../../auth/[...nextauth]/auth";
 import connectDB from "@/lib/mongodb";
 import Cart from "@/models/Cart";
 import Product from "@/models/Product"; // Add this import
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 export async function PUT(request: NextRequest) {
   try {
@@ -41,7 +41,7 @@ export async function PUT(request: NextRequest) {
 
     // Find the item in the cart
     const itemIndex = cart.items.findIndex(
-      item => 
+      (item: { productId: Types.ObjectId; unitIndex: number }) => 
         item.productId.toString() === productId && 
         item.unitIndex === unitIndex
     );
@@ -69,7 +69,7 @@ export async function PUT(request: NextRequest) {
     await cart.save();
 
     // Prepare the response with full item details
-    const cartItems = await Promise.all(cart.items.map(async (item) => {
+    const cartItems = await Promise.all(cart.items.map(async (item: { productId: Types.ObjectId; unitIndex: number; quantity: number }) => {
       const product = await Product.findById(item.productId);
       return {
         productId: item.productId.toString(),
