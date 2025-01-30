@@ -1,13 +1,23 @@
+import { NextRequest, NextResponse } from 'next/server';
 import Contact from '@/models/contact';
 import connectDB from '@/lib/mongodb';
 
-export async function DELETE(request, { params }) {
+interface Params {
+  params: {
+    id: string
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: Params
+) {
   try {
     await connectDB();
-    const { id } = await params;
-    
+    const id = params.id;
+
     const contact = await Contact.findByIdAndDelete(id);
-    
+
     if (!contact) {
       return Response.json(
         { error: "Contact not found" },
@@ -16,8 +26,8 @@ export async function DELETE(request, { params }) {
     }
 
     return Response.json({ success: true, data: contact });
-  } catch (error) {
-    console.log(error);
+  } catch (error: unknown) {
+    console.log("Error deleting contact:", error); // Use the `error` variable
     return Response.json(
       { error: "Failed to delete contact" },
       { status: 500 }
@@ -25,25 +35,27 @@ export async function DELETE(request, { params }) {
   }
 }
 
-export async function PATCH(req, context) {
+export async function PATCH(
+  req: NextRequest,
+  context: { params: { id: string } }
+): Promise<NextResponse> {
   const { params } = context;
 
   try {
     await connectDB();
-    const { id } = await params;
     const updatedMessage = await Contact.findByIdAndUpdate(
-      id,
+      params.id,
       { isViewed: true },
       { new: true, runValidators: true }
     );
 
     if (!updatedMessage) {
-      return Response.json({ error: 'Message not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Message not found' }, { status: 404 });
     }
 
-    return Response.json({ success: true, data: updatedMessage });
+    return NextResponse.json({ success: true, data: updatedMessage });
   } catch (error) {
     console.error('Error updating message:', error);
-    return Response.json({ error: 'Failed to update message' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update message' }, { status: 500 });
   }
 }

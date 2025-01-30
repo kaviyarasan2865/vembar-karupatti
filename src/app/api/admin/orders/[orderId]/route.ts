@@ -3,9 +3,15 @@ import { jwtVerify } from 'jose'
 import connectDB from '@/lib/mongodb'
 import Order from '@/models/Order'
 
+interface Params {
+  params: {
+    orderId: string
+  }
+}
+
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { orderId: string } }
+  { params }: Params
 ) {
   try {
     // Get admin token from cookies
@@ -55,4 +61,4 @@ export async function PATCH(
       { status: 500 }
     )
   }
-} 
+}
