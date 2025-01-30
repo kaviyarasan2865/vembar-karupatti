@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { otpStore } from '@/lib/otpStore';
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
   try {
     const { email, otp } = await req.json();
     
@@ -32,6 +32,10 @@ export async function POST(req) {
 
     // Clear OTP
     otpStore.delete(email);
+
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET is not defined');
+    }
 
     // Create session token
     const token = jwt.sign(
