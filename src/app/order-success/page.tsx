@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -19,7 +19,7 @@ interface OrderDetails {
   createdAt: string;
 }
 
-export default function OrderSuccessPage() {
+function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
@@ -133,5 +133,21 @@ export default function OrderSuccessPage() {
       </div>
       <Footer />
     </div>
+  );
+}
+
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div>
+        <Navbar />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600" />
+        </div>
+        <Footer />
+      </div>
+    }>
+      <OrderSuccessContent />
+    </Suspense>
   );
 } 
