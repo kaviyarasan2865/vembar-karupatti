@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/scripts/adminSeeder.mjs", "src/app/api/admin/contact/[id]/route.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/scripts/adminSeeder.mjs", "src/app/api/admin/contact/[id]/route.js", "src/app/api/admin/orders/[orderId]/route.js", "src/app/api/orders/[orderId]/route.js", "src/app/api/orders/receipt/[id]/route.js", "src/app/api/reviews/[id]/route.js", "src/app/api/user/products/[id]/route.js", "src/app/api/user/review/[productId]/route.js"],
   "exclude": ["node_modules"]
 }

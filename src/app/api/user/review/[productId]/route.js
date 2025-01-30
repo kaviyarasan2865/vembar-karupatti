@@ -5,14 +5,8 @@ import connectDB from '@/lib/mongodb';
 import Review from '@/models/review';
 import Order from '@/models/Order';
 
-interface OrderItem {
-  productId: string | { toString(): string };
-  quantity: number;
-}
-
 export async function GET(
-  request: Request,
-  { params }: { params: { productId: string } }
+    { params }
 ) {
   try {
     const { productId } = params;
@@ -52,7 +46,7 @@ export async function GET(
         ...review,
         userId: review.user,
         verified: Boolean(order && order.items.some(
-          (item: OrderItem) => item.productId.toString() === productId
+          (item) => item.productId.toString() === productId
         ))
       };
     }));

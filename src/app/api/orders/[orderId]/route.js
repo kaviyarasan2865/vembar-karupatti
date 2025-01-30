@@ -1,13 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/auth';
 import connectDB from '@/lib/mongodb';
 import Order from '@/models/Order';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { orderId: string } }
-) {
+export async function GET(request, { params }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {

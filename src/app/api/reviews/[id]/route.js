@@ -4,10 +4,7 @@ import { authOptions } from '../../auth/[...nextauth]/auth';
 import connectDB from '@/lib/mongodb';
 import Review from '@/models/review';
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req, { params }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {

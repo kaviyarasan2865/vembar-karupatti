@@ -6,8 +6,7 @@ import Order from '@/models/Order';
 import jsPDF from 'jspdf';
 
 export async function GET(
-  request: Request,
-  context: { params: { id: string } }
+  context
 ) {
   try {
     const { id } = context.params;

@@ -1,18 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import {     NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
 import connectDB from '@/lib/mongodb'
 import Order from '@/models/Order'
 
-interface Params {
-  params: {
-    orderId: string
-  }
-}
-
-export async function PATCH(
-  request: NextRequest,
-  { params }: Params
-) {
+export async function PATCH(request, { params }) {
   try {
     // Get admin token from cookies
     const adminToken = request.cookies.get('admin_token')
