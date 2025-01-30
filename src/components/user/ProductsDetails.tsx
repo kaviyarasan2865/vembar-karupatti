@@ -95,7 +95,7 @@ const ProductsDetails = () => {
                     )}
                   </div>
                   <button
-                    onClick={() => handleProductClick(product._id)}
+                    onClick={() => handleProductClick(product.id as string)}
                     className="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition flex items-center gap-2"
                   >
                     View Details
